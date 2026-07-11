@@ -1,0 +1,37 @@
+{"level":"error","message":"Unhandled Rejection at:","service":"student-management-api","timestamp":"2026-07-10 12:39:23"}
+{"level":"error","message":"Unhandled Rejection at:","service":"student-management-api","timestamp":"2026-07-10 12:39:52"}
+{"level":"error","message":"Error creating course:","service":"student-management-api","timestamp":"2026-07-10 12:40:23"}
+{"level":"error","message":"Error creating student:","service":"student-management-api","timestamp":"2026-07-10 12:41:16"}
+{"level":"error","message":"Error creating student:","service":"student-management-api","timestamp":"2026-07-10 12:41:47"}
+{"level":"error","message":"Error getting student:","service":"student-management-api","timestamp":"2026-07-10 12:41:48"}
+{"level":"error","message":"Error deleting student:","service":"student-management-api","timestamp":"2026-07-10 12:41:49"}
+{"level":"error","message":"Error creating student:","service":"student-management-api","timestamp":"2026-07-10 12:42:31"}
+{"level":"error","message":"Error creating student:","service":"student-management-api","timestamp":"2026-07-10 12:42:50"}
+{"level":"error","message":"Error fetching department:","service":"student-management-api","timestamp":"2026-07-10 13:27:56"}
+{"level":"error","message":"Error creating department:","service":"student-management-api","timestamp":"2026-07-10 13:27:56"}
+{"level":"error","message":"Authentication error:","service":"student-management-api","timestamp":"2026-07-10 13:27:56"}
+{"level":"error","message":"Error updating department:","service":"student-management-api","timestamp":"2026-07-10 13:27:56"}
+{"level":"error","message":"Error getting student:","service":"student-management-api","timestamp":"2026-07-10 13:27:58"}
+{"level":"error","message":"Authentication error:","service":"student-management-api","timestamp":"2026-07-10 13:27:58"}
+{"level":"error","message":"Authentication error:","service":"student-management-api","timestamp":"2026-07-10 13:27:58"}
+{"level":"error","message":"Error deleting student:","service":"student-management-api","timestamp":"2026-07-10 13:27:58"}
+{"level":"error","message":"Error fetching all courses:","service":"student-management-api","timestamp":"2026-07-10 13:27:59"}
+{"level":"error","message":"Error fetching courses by department:","service":"student-management-api","timestamp":"2026-07-10 13:27:59"}
+{"level":"error","message":"Error fetching course:","service":"student-management-api","timestamp":"2026-07-10 13:27:59"}
+{"level":"error","message":"Error creating course:","service":"student-management-api","timestamp":"2026-07-10 13:27:59"}
+{"level":"error","message":"Authentication error:","service":"student-management-api","timestamp":"2026-07-10 13:27:59"}
+{"level":"error","message":"Error updating course:","service":"student-management-api","timestamp":"2026-07-10 13:27:59"}
+{"level":"error","message":"Error listing departments:","service":"student-management-api","timestamp":"2026-07-10 13:30:06"}
+{"level":"error","message":"Error listing departments:","service":"student-management-api","timestamp":"2026-07-10 13:31:19"}
+{"level":"error","message":"Error listing departments:","service":"student-management-api","timestamp":"2026-07-10 13:33:17"}
+{"level":"error","message":"Error listing departments:","service":"student-management-api","timestamp":"2026-07-10 13:35:07"}
+{"level":"error","message":"Error listing departments:","service":"student-management-api","timestamp":"2026-07-10 13:36:00"}
+{"level":"error","message":"Error listing departments:","service":"student-management-api","timestamp":"2026-07-10 13:36:51"}
+{"level":"error","message":"Error listing departments:","service":"student-management-api","timestamp":"2026-07-10 13:46:55"}
+{"level":"error","message":"Unhandled Rejection at:","service":"student-management-api","timestamp":"2026-07-10 14:30:43"}
+{"level":"error","message":"Error listing departments:","service":"student-management-api","timestamp":"2026-07-10 14:40:37"}
+{"level":"error","message":"Error listing departments:","service":"student-management-api","timestamp":"2026-07-10 14:43:30"}
+{"level":"error","message":"Error listing departments:","service":"student-management-api","timestamp":"2026-07-10 14:45:33"}
+{"level":"error","message":"Error listing departments:","service":"student-management-api","timestamp":"2026-07-10 14:48:07"}
+{"level":"error","message":"Error listing departments:","service":"student-management-api","timestamp":"2026-07-10 14:49:49"}
+{"level":"error","message":"Login error:","service":"student-management-api","timestamp":"2026-07-10 15:35:27"}

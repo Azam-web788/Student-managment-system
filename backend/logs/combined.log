@@ -1,0 +1,113 @@
+{"level":"info","message":"Server running in development mode on port 5000","service":"student-management-api","timestamp":"2026-07-10 12:31:27"}
+{"level":"info","message":"API available at http://localhost:5000/api","service":"student-management-api","timestamp":"2026-07-10 12:31:27"}
+{"level":"info","message":"Starting database migration...","service":"student-management-api","timestamp":"2026-07-10 12:38:51"}
+{"level":"info","message":"Database migration completed successfully","service":"student-management-api","timestamp":"2026-07-10 12:38:51"}
+{"duration":18,"ip":"::1","level":"info","message":"GET /api/dashboard/stats 401 18ms","method":"GET","service":"student-management-api","status":401,"timestamp":"2026-07-10 12:39:20","url":"/api/dashboard/stats"}
+{"duration":3,"ip":"::1","level":"info","message":"GET /api/dashboard/stats 401 3ms","method":"GET","service":"student-management-api","status":401,"timestamp":"2026-07-10 12:39:20","url":"/api/dashboard/stats"}
+{"level":"error","message":"Unhandled Rejection at:","service":"student-management-api","timestamp":"2026-07-10 12:39:23"}
+{"duration":1,"ip":"::1","level":"info","message":"GET /api/health 200 1ms","method":"GET","service":"student-management-api","status":200,"timestamp":"2026-07-10 12:39:27","url":"/api/health"}
+{"level":"error","message":"Unhandled Rejection at:","service":"student-management-api","timestamp":"2026-07-10 12:39:52"}
+{"level":"info","message":"New user registered: admin@example.com","service":"student-management-api","timestamp":"2026-07-10 12:39:53"}
+{"duration":445,"ip":"::1","level":"info","message":"POST /api/auth/register 201 445ms","method":"POST","service":"student-management-api","status":201,"timestamp":"2026-07-10 12:39:53","url":"/api/auth/register"}
+{"level":"info","message":"User logged in: admin@example.com","service":"student-management-api","timestamp":"2026-07-10 12:40:10"}
+{"duration":385,"ip":"::1","level":"info","message":"POST /api/auth/login 200 385ms","method":"POST","service":"student-management-api","status":200,"timestamp":"2026-07-10 12:40:10","url":"/api/auth/login"}
+{"duration":15,"ip":"::1","level":"info","message":"POST /api/departments 201 15ms","method":"POST","service":"student-management-api","status":201,"timestamp":"2026-07-10 12:40:22","url":"/api/departments"}
+{"level":"error","message":"Error creating course:","service":"student-management-api","timestamp":"2026-07-10 12:40:23"}
+{"duration":12,"ip":"::1","level":"info","message":"POST /api/courses 500 12ms","method":"POST","service":"student-management-api","status":500,"timestamp":"2026-07-10 12:40:23","url":"/api/courses"}
+{"duration":239,"ip":"::1","level":"info","message":"POST /api/departments 400 239ms","method":"POST","service":"student-management-api","status":400,"timestamp":"2026-07-10 12:40:39","url":"/api/departments"}
+{"duration":17,"ip":"::1","level":"info","message":"POST /api/departments 201 17ms","method":"POST","service":"student-management-api","status":201,"timestamp":"2026-07-10 12:40:40","url":"/api/departments"}
+{"duration":24,"ip":"::1","level":"info","message":"GET /api/departments 200 24ms","method":"GET","service":"student-management-api","status":200,"timestamp":"2026-07-10 12:40:41","url":"/api/departments"}
+{"duration":14,"ip":"::1","level":"info","message":"POST /api/courses 201 14ms","method":"POST","service":"student-management-api","status":201,"timestamp":"2026-07-10 12:40:57","url":"/api/courses"}
+{"duration":9,"ip":"::1","level":"info","message":"POST /api/courses 201 9ms","method":"POST","service":"student-management-api","status":201,"timestamp":"2026-07-10 12:40:57","url":"/api/courses"}
+{"duration":7,"ip":"::1","level":"info","message":"GET /api/courses 200 7ms","method":"GET","service":"student-management-api","status":200,"timestamp":"2026-07-10 12:40:58","url":"/api/courses"}
+{"duration":2,"ip":"::1","level":"info","message":"GET /api/courses/by-department/5d972df9-8455-4069-bf2b-20b25254523a 200 2ms","method":"GET","service":"student-management-api","status":200,"timestamp":"2026-07-10 12:40:58","url":"/api/courses/by-department/5d972df9-8455-4069-bf2b-20b25254523a"}
+{"duration":3,"ip":"::1","level":"info","message":"GET /api/courses/by-department/5d972df9-8455-4069-bf2b-20b25254523a 200 3ms","method":"GET","service":"student-management-api","status":200,"timestamp":"2026-07-10 12:41:15","url":"/api/courses/by-department/5d972df9-8455-4069-bf2b-20b25254523a"}
+{"level":"info","message":"Student created: STU260001 - John Doe","service":"student-management-api","timestamp":"2026-07-10 12:41:16"}
+{"duration":32,"ip":"::1","level":"info","message":"POST /api/students 201 32ms","method":"POST","service":"student-management-api","status":201,"timestamp":"2026-07-10 12:41:16","url":"/api/students"}
+{"level":"error","message":"Error creating student:","service":"student-management-api","timestamp":"2026-07-10 12:41:16"}
+{"duration":19,"ip":"::1","level":"info","message":"POST /api/students 500 19ms","method":"POST","service":"student-management-api","status":500,"timestamp":"2026-07-10 12:41:16","url":"/api/students"}
+{"duration":183,"ip":"::1","level":"info","message":"GET /api/students 200 183ms","method":"GET","service":"student-management-api","status":200,"timestamp":"2026-07-10 12:41:17","url":"/api/students"}
+{"duration":6,"ip":"::1","level":"info","message":"GET /api/students?search=John 200 6ms","method":"GET","service":"student-management-api","status":200,"timestamp":"2026-07-10 12:41:17","url":"/api/students?search=John"}
+{"level":"error","message":"Error creating student:","service":"student-management-api","timestamp":"2026-07-10 12:41:47"}
+{"duration":25,"ip":"::1","level":"info","message":"POST /api/students 500 25ms","method":"POST","service":"student-management-api","status":500,"timestamp":"2026-07-10 12:41:47","url":"/api/students"}
+{"duration":135,"ip":"::1","level":"info","message":"GET /api/dashboard/stats 200 135ms","method":"GET","service":"student-management-api","status":200,"timestamp":"2026-07-10 12:41:47","url":"/api/dashboard/stats"}
+{"level":"error","message":"Error getting student:","service":"student-management-api","timestamp":"2026-07-10 12:41:48"}
+{"duration":4,"ip":"::1","level":"info","message":"GET /api/students/ea00ca23-87 500 4ms","method":"GET","service":"student-management-api","status":500,"timestamp":"2026-07-10 12:41:48","url":"/api/students/ea00ca23-87"}
+{"duration":95,"ip":"::1","level":"info","message":"PUT /api/students/ea00ca23-87 400 95ms","method":"PUT","service":"student-management-api","status":400,"timestamp":"2026-07-10 12:41:48","url":"/api/students/ea00ca23-87"}
+{"level":"error","message":"Error deleting student:","service":"student-management-api","timestamp":"2026-07-10 12:41:49"}
+{"duration":5,"ip":"::1","level":"info","message":"DELETE /api/students/ea00ca23-87 500 5ms","method":"DELETE","service":"student-management-api","status":500,"timestamp":"2026-07-10 12:41:49","url":"/api/students/ea00ca23-87"}
+{"duration":154,"ip":"::1","level":"info","message":"GET /api/students 200 154ms","method":"GET","service":"student-management-api","status":200,"timestamp":"2026-07-10 12:41:49","url":"/api/students"}
+{"duration":0,"ip":"::1","level":"info","message":"GET /api/health 200 0ms","method":"GET","service":"student-management-api","status":200,"timestamp":"2026-07-10 12:41:49","url":"/api/health"}
+{"duration":4,"ip":"::1","level":"info","message":"GET /api/students 200 4ms","method":"GET","service":"student-management-api","status":200,"timestamp":"2026-07-10 12:42:04","url":"/api/students"}
+{"duration":3,"ip":"::1","level":"info","message":"GET /api/students/ea00ca23-8733-4444-b29a-0c3768f779a0 200 3ms","method":"GET","service":"student-management-api","status":200,"timestamp":"2026-07-10 12:42:28","url":"/api/students/ea00ca23-8733-4444-b29a-0c3768f779a0"}
+{"level":"info","message":"Student updated: STU260001","service":"student-management-api","timestamp":"2026-07-10 12:42:29"}
+{"duration":11,"ip":"::1","level":"info","message":"PUT /api/students/ea00ca23-8733-4444-b29a-0c3768f779a0 200 11ms","method":"PUT","service":"student-management-api","status":200,"timestamp":"2026-07-10 12:42:29","url":"/api/students/ea00ca23-8733-4444-b29a-0c3768f779a0"}
+{"duration":9,"ip":"::1","level":"info","message":"GET /api/dashboard/stats 200 9ms","method":"GET","service":"student-management-api","status":200,"timestamp":"2026-07-10 12:42:30","url":"/api/dashboard/stats"}
+{"level":"error","message":"Error creating student:","service":"student-management-api","timestamp":"2026-07-10 12:42:31"}
+{"duration":20,"ip":"::1","level":"info","message":"POST /api/students 500 20ms","method":"POST","service":"student-management-api","status":500,"timestamp":"2026-07-10 12:42:31","url":"/api/students"}
+{"duration":140,"ip":"::1","level":"info","message":"GET /api/students?search=John 200 140ms","method":"GET","service":"student-management-api","status":200,"timestamp":"2026-07-10 12:42:32","url":"/api/students?search=John"}
+{"level":"info","message":"Student deleted: STU260001 - John Doe","service":"student-management-api","timestamp":"2026-07-10 12:42:33"}
+{"duration":10,"ip":"::1","level":"info","message":"DELETE /api/students/ea00ca23-8733-4444-b29a-0c3768f779a0 200 10ms","method":"DELETE","service":"student-management-api","status":200,"timestamp":"2026-07-10 12:42:33","url":"/api/students/ea00ca23-8733-4444-b29a-0c3768f779a0"}
+{"duration":3,"ip":"::1","level":"info","message":"GET /api/students/ea00ca23-8733-4444-b29a-0c3768f779a0 200 3ms","method":"GET","service":"student-management-api","status":200,"timestamp":"2026-07-10 12:42:33","url":"/api/students/ea00ca23-8733-4444-b29a-0c3768f779a0"}
+{"level":"error","message":"Error creating student:","service":"student-management-api","timestamp":"2026-07-10 12:42:50"}
+{"duration":30,"ip":"::1","level":"info","message":"POST /api/students 500 30ms","method":"POST","service":"student-management-api","status":500,"timestamp":"2026-07-10 12:42:50","url":"/api/students"}
+{"duration":1,"ip":"::1","level":"info","message":"GET /api/health 200 1ms","method":"GET","service":"student-management-api","status":200,"timestamp":"2026-07-10 12:42:50","url":"/api/health"}
+{"level":"info","message":"Server running in development mode on port 5000","service":"student-management-api","timestamp":"2026-07-10 13:05:44"}
+{"level":"info","message":"API available at http://localhost:5000/api","service":"student-management-api","timestamp":"2026-07-10 13:05:44"}
+{"level":"error","message":"Error fetching department:","service":"student-management-api","timestamp":"2026-07-10 13:27:56"}
+{"level":"error","message":"Error creating department:","service":"student-management-api","timestamp":"2026-07-10 13:27:56"}
+{"level":"error","message":"Authentication error:","service":"student-management-api","timestamp":"2026-07-10 13:27:56"}
+{"level":"error","message":"Error updating department:","service":"student-management-api","timestamp":"2026-07-10 13:27:56"}
+{"level":"error","message":"Error getting student:","service":"student-management-api","timestamp":"2026-07-10 13:27:58"}
+{"level":"error","message":"Authentication error:","service":"student-management-api","timestamp":"2026-07-10 13:27:58"}
+{"level":"error","message":"Authentication error:","service":"student-management-api","timestamp":"2026-07-10 13:27:58"}
+{"level":"error","message":"Error deleting student:","service":"student-management-api","timestamp":"2026-07-10 13:27:58"}
+{"level":"error","message":"Error fetching all courses:","service":"student-management-api","timestamp":"2026-07-10 13:27:59"}
+{"level":"error","message":"Error fetching courses by department:","service":"student-management-api","timestamp":"2026-07-10 13:27:59"}
+{"level":"error","message":"Error fetching course:","service":"student-management-api","timestamp":"2026-07-10 13:27:59"}
+{"level":"error","message":"Error creating course:","service":"student-management-api","timestamp":"2026-07-10 13:27:59"}
+{"level":"error","message":"Authentication error:","service":"student-management-api","timestamp":"2026-07-10 13:27:59"}
+{"level":"error","message":"Error updating course:","service":"student-management-api","timestamp":"2026-07-10 13:27:59"}
+{"level":"error","message":"Error listing departments:","service":"student-management-api","timestamp":"2026-07-10 13:30:06"}
+{"level":"error","message":"Error listing departments:","service":"student-management-api","timestamp":"2026-07-10 13:31:19"}
+{"level":"error","message":"Error listing departments:","service":"student-management-api","timestamp":"2026-07-10 13:33:17"}
+{"level":"error","message":"Error listing departments:","service":"student-management-api","timestamp":"2026-07-10 13:35:07"}
+{"level":"error","message":"Error listing departments:","service":"student-management-api","timestamp":"2026-07-10 13:36:00"}
+{"level":"error","message":"Error listing departments:","service":"student-management-api","timestamp":"2026-07-10 13:36:51"}
+{"level":"error","message":"Error listing departments:","service":"student-management-api","timestamp":"2026-07-10 13:46:55"}
+{"level":"error","message":"Unhandled Rejection at:","service":"student-management-api","timestamp":"2026-07-10 14:30:43"}
+{"level":"error","message":"Error listing departments:","service":"student-management-api","timestamp":"2026-07-10 14:40:37"}
+{"level":"error","message":"Error listing departments:","service":"student-management-api","timestamp":"2026-07-10 14:43:30"}
+{"level":"error","message":"Error listing departments:","service":"student-management-api","timestamp":"2026-07-10 14:45:33"}
+{"level":"error","message":"Error listing departments:","service":"student-management-api","timestamp":"2026-07-10 14:48:07"}
+{"level":"info","message":"Server running in development mode on port 5000","service":"student-management-api","timestamp":"2026-07-10 14:48:21"}
+{"level":"info","message":"API available at http://localhost:5000/api","service":"student-management-api","timestamp":"2026-07-10 14:48:21"}
+{"duration":165,"ip":"::1","level":"info","message":"POST /api/auth/login 401 165ms","method":"POST","service":"student-management-api","status":401,"timestamp":"2026-07-10 14:48:49","url":"/api/auth/login"}
+{"duration":5,"ip":"::1","level":"info","message":"POST /api/auth/login 401 5ms","method":"POST","service":"student-management-api","status":401,"timestamp":"2026-07-10 14:48:53","url":"/api/auth/login"}
+{"duration":4,"ip":"::1","level":"info","message":"POST /api/auth/login 401 4ms","method":"POST","service":"student-management-api","status":401,"timestamp":"2026-07-10 14:48:54","url":"/api/auth/login"}
+{"level":"error","message":"Error listing departments:","service":"student-management-api","timestamp":"2026-07-10 14:49:49"}
+{"level":"info","message":"Server running in development mode on port 5000","service":"student-management-api","timestamp":"2026-07-10 15:25:54"}
+{"level":"info","message":"API available at http://localhost:5000/api","service":"student-management-api","timestamp":"2026-07-10 15:25:54"}
+{"duration":291,"ip":"::1","level":"info","message":"POST /api/auth/login 401 291ms","method":"POST","service":"student-management-api","status":401,"timestamp":"2026-07-10 15:27:52","url":"/api/auth/login"}
+{"duration":5,"ip":"::1","level":"info","message":"POST /api/auth/login 401 5ms","method":"POST","service":"student-management-api","status":401,"timestamp":"2026-07-10 15:28:04","url":"/api/auth/login"}
+{"level":"info","message":"Server running in development mode on port 5000","service":"student-management-api","timestamp":"2026-07-10 15:30:40"}
+{"level":"info","message":"API available at http://localhost:5000/api","service":"student-management-api","timestamp":"2026-07-10 15:30:40"}
+{"level":"error","message":"Login error:","service":"student-management-api","timestamp":"2026-07-10 15:35:27"}
+{"duration":13371,"ip":"::1","level":"info","message":"POST /api/auth/login 500 13371ms","method":"POST","service":"student-management-api","status":500,"timestamp":"2026-07-10 15:35:33","url":"/api/auth/login"}
+{"duration":103,"ip":"::1","level":"info","message":"POST /api/auth/login 401 103ms","method":"POST","service":"student-management-api","status":401,"timestamp":"2026-07-10 15:52:27","url":"/api/auth/login"}
+{"duration":4,"ip":"::1","level":"info","message":"POST /api/auth/login 401 4ms","method":"POST","service":"student-management-api","status":401,"timestamp":"2026-07-10 15:52:29","url":"/api/auth/login"}
+{"duration":3,"ip":"::1","level":"info","message":"POST /api/auth/login 401 3ms","method":"POST","service":"student-management-api","status":401,"timestamp":"2026-07-10 15:52:30","url":"/api/auth/login"}
+{"duration":96,"ip":"::1","level":"info","message":"POST /api/auth/login 401 96ms","method":"POST","service":"student-management-api","status":401,"timestamp":"2026-07-10 15:53:26","url":"/api/auth/login"}
+{"duration":78,"ip":"::1","level":"info","message":"POST /api/auth/login 401 78ms","method":"POST","service":"student-management-api","status":401,"timestamp":"2026-07-10 15:54:21","url":"/api/auth/login"}
+{"level":"info","message":"Server running in development mode on port 5000","service":"student-management-api","timestamp":"2026-07-10 15:56:59"}
+{"level":"info","message":"API available at http://localhost:5000/api","service":"student-management-api","timestamp":"2026-07-10 15:56:59"}
+{"level":"info","message":"Database connection verified successfully","service":"student-management-api","timestamp":"2026-07-10 15:57:00"}
+{"duration":4,"ip":"::1","level":"info","message":"GET /api/health 200 4ms","method":"GET","service":"student-management-api","status":200,"timestamp":"2026-07-10 15:57:02","url":"/api/health"}
+{"level":"info","message":"Server running in development mode on port 5000","service":"student-management-api","timestamp":"2026-07-10 15:59:28"}
+{"level":"info","message":"API available at http://localhost:5000/api","service":"student-management-api","timestamp":"2026-07-10 15:59:28"}
+{"level":"info","message":"Database connection verified successfully","service":"student-management-api","timestamp":"2026-07-10 15:59:28"}
+{"duration":5,"ip":"::1","level":"info","message":"GET /api/health 200 5ms","method":"GET","service":"student-management-api","status":200,"timestamp":"2026-07-10 15:59:32","url":"/api/health"}
+{"duration":379,"ip":"::1","level":"info","message":"POST /api/auth/login 401 379ms","method":"POST","service":"student-management-api","status":401,"timestamp":"2026-07-10 15:59:32","url":"/api/auth/login"}
+{"duration":1,"ip":"::1","level":"info","message":"GET /api/health 200 1ms","method":"GET","service":"student-management-api","status":200,"timestamp":"2026-07-10 15:59:50","url":"/api/health"}
+{"duration":353,"ip":"::1","level":"info","message":"POST /api/auth/login 401 353ms","method":"POST","service":"student-management-api","status":401,"timestamp":"2026-07-10 15:59:51","url":"/api/auth/login"}
+{"duration":103,"ip":"::1","level":"info","message":"POST /api/auth/login 401 103ms","method":"POST","service":"student-management-api","status":401,"timestamp":"2026-07-10 17:27:41","url":"/api/auth/login"}

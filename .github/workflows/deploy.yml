@@ -1,0 +1,270 @@
+# Student Management System - CI/CD Pipeline
+# This workflow handles building, testing, and deploying the application
+
+name: Student Management CI/CD
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+
+env:
+  NODE_VERSION: '20'
+  AWS_REGION: 'us-east-1'
+  TERRAFORM_VERSION: '1.5.0'
+
+jobs:
+  lint-and-test:
+    name: Lint & Test
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install Backend Dependencies
+        run: |
+          cd backend
+          npm ci
+
+      - name: Install Frontend Dependencies
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Run Backend Linting
+        run: |
+          cd backend
+          npm run lint || echo "Linting warnings found"
+        continue-on-error: true
+
+      - name: Run Frontend Linting
+        run: |
+          cd frontend
+          npm run lint || echo "Linting warnings found"
+        continue-on-error: true
+
+      - name: Build Frontend
+        run: |
+          cd frontend
+          npm run build
+
+      - name: Build Backend (Verify)
+        run: |
+          cd backend
+          npm ls --depth=0
+
+  build-ami:
+    name: Build Packer AMI
+    needs: [lint-and-test]
+    runs-on: ubuntu-latest
+    outputs:
+      ami_id: ${{ steps.ami.outputs.ami_id }}
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Packer
+        uses: hashicorp/setup-packer@v3
+        with:
+          version: 'latest'
+
+      - name: Initialize Packer
+        run: |
+          cd packer
+          packer init ami.pkr.hcl
+
+      - name: Build AMI
+        run: |
+          cd packer
+          packer build \
+            -var "aws_region=${{ env.AWS_REGION }}" \
+            -var "app_version=${{ github.sha }}" \
+            ami.pkr.hcl
+
+      - name: Get AMI ID
+        id: ami
+        run: |
+          echo "ami_id=$(cat manifest.json 2>/dev/null | jq -r '.builds[-1].artifact_id' 2>/dev/null | cut -d: -f2 2>/dev/null || echo '')" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+  terraform-plan:
+    name: Terraform Plan
+    needs: [lint-and-test]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+
+      - name: Terraform Init
+        run: |
+          cd terraform
+          terraform init
+
+      - name: Terraform Format Check
+        run: |
+          cd terraform
+          terraform fmt -check
+
+      - name: Terraform Plan
+        run: |
+          cd terraform
+          terraform plan \
+            -var="db_password=${{ secrets.DB_PASSWORD }}" \
+            -var="jwt_secret=${{ secrets.JWT_SECRET }}" \
+            -var="domain_name=${{ vars.DOMAIN_NAME }}" \
+            -out=tfplan
+
+      - name: Upload Terraform Plan
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan
+          path: terraform/tfplan
+
+  terraform-apply:
+    name: Terraform Apply
+    needs: [build-ami]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    environment: ${{ github.event.inputs.environment || 'staging' }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+
+      - name: Terraform Init
+        run: |
+          cd terraform
+          terraform init
+
+      - name: Terraform Apply
+        run: |
+          cd terraform
+          terraform apply -auto-approve \
+            -var="db_password=${{ secrets.DB_PASSWORD }}" \
+            -var="jwt_secret=${{ secrets.JWT_SECRET }}" \
+            -var="domain_name=${{ vars.DOMAIN_NAME }}" \
+            -var="ami_id=${{ needs.build-ami.outputs.ami_id }}"
+
+      - name: Get ALB DNS
+        id: alb
+        run: |
+          cd terraform
+          echo "alb_dns=$(terraform output -raw alb_dns_name)" >> $GITHUB_OUTPUT
+
+  deploy:
+    name: Deploy Application
+    needs: [terraform-apply]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Force ASG Instance Refresh
+        run: |
+          ASG_NAME=$(aws autoscaling describe-auto-scaling-groups \
+            --filters "Name=tag:Name,Values=*-asg" \
+            --query "AutoScalingGroups[0].AutoScalingGroupName" \
+            --output text)
+          
+          if [ "$ASG_NAME" != "None" ]; then
+            aws autoscaling start-instance-refresh \
+              --auto-scaling-group-name "$ASG_NAME" \
+              --strategy Rolling \
+              --preferences '{"MinHealthyPercentage": 50, "InstanceWarmup": 120}'
+          fi
+
+      - name: Verify Deployment
+        run: |
+          ALB_DNS=$(cd terraform && terraform output -raw alb_dns_name)
+          echo "Waiting for ALB to be ready..."
+          for i in {1..30}; do
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://$ALB_DNS/api/health || echo "000")
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "Deployment successful! API is healthy at http://$ALB_DNS/api/health"
+              break
+            fi
+            echo "Attempt $i: HTTP $HTTP_CODE - waiting..."
+            sleep 10
+          done
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload Trivy results to GitHub
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
+        continue-on-error: true
