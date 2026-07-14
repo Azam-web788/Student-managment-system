@@ -211,6 +211,7 @@ resource "aws_iam_policy" "github_actions_terraform" {
           "kms:GetKeyRotationStatus",
           "kms:TagResource",
           "kms:UntagResource",
+          "kms:ListResourceTags",
           # S3 (all buckets including terraform state)
           "s3:GetObject",
           "s3:PutObject",
@@ -231,6 +232,7 @@ resource "aws_iam_policy" "github_actions_terraform" {
           "s3:GetBucketCORS",
           "s3:GetBucketWebsite",
           "s3:GetBucketLogging",
+          "s3:GetBucketVersioning",
           # CloudWatch
           "logs:CreateLogGroup",
           "logs:DeleteLogGroup",
