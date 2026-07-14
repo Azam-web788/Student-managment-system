@@ -91,6 +91,8 @@ resource "aws_iam_policy" "github_actions_terraform" {
           "ec2:ImportKeyPair",
           "ec2:TerminateInstances",
           "ec2:DescribeInstanceStatus",
+          "ec2:CreateTags",
+          "ec2:DeleteTags",
           # Auto Scaling
           "autoscaling:DescribeAutoScalingGroups",
           "autoscaling:DescribeLaunchConfigurations",
@@ -167,6 +169,8 @@ resource "aws_iam_policy" "github_actions_terraform" {
           "iam:DeleteInstanceProfile",
           "iam:AddRoleToInstanceProfile",
           "iam:RemoveRoleFromInstanceProfile",
+          "iam:TagRole",
+          "iam:UntagRole",
           # KMS
           "kms:CreateKey",
           "kms:DescribeKey",
@@ -194,9 +198,15 @@ resource "aws_iam_policy" "github_actions_terraform" {
           "logs:PutLogEvents",
           "logs:DescribeLogStreams",
           "logs:GetLogEvents",
+          "logs:TagResource",
+          "logs:UntagResource",
           "cloudwatch:PutMetricAlarm",
           "cloudwatch:DescribeAlarms",
           "cloudwatch:DeleteAlarms",
+          "cloudwatch:PutDashboard",
+          "cloudwatch:GetDashboard",
+          "cloudwatch:ListDashboards",
+          "cloudwatch:TagResource",
           # SNS (for CloudWatch alarms)
           "sns:CreateTopic",
           "sns:DeleteTopic",
