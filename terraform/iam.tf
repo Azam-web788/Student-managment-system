@@ -184,7 +184,11 @@ resource "aws_iam_policy" "github_actions_terraform" {
           "kms:CancelKeyDeletion",
           "kms:CreateAlias",
           "kms:DeleteAlias",
-          # S3 (uploads bucket)
+          # S3 (all buckets including terraform state)
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:DeleteObject",
+          "s3:ListBucket",
           "s3:CreateBucket",
           "s3:DeleteBucket",
           "s3:PutBucketPolicy",
