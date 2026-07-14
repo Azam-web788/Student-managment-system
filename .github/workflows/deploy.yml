@@ -19,6 +19,11 @@ on:
           - staging
           - production
 
+# Required OIDC permissions for AWS authentication
+permissions:
+  id-token: write   # needed for OIDC with AWS
+  contents: read    # needed to checkout the repo
+
 env:
   NODE_VERSION: '22'
   AWS_REGION: 'us-east-1'
