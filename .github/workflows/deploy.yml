@@ -152,10 +152,20 @@ jobs:
         with:
           terraform_version: ${{ env.TERRAFORM_VERSION }}
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
       - name: Package Backend
         run: |
           cd backend
           tar -czf ../backend-deploy.tar.gz --exclude='node_modules' --exclude='.env' --exclude='logs' --exclude='uploads' --exclude='coverage' .
+
+      - name: Install Frontend Dependencies
+        run: |
+          cd frontend
+          npm ci
 
       - name: Build Frontend
         run: |
