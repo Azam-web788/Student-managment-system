@@ -212,6 +212,7 @@ resource "aws_iam_policy" "github_actions_terraform" {
           "kms:TagResource",
           "kms:UntagResource",
           "kms:ListResourceTags",
+          "kms:ListAliases",
           # S3 (all buckets including terraform state)
           "s3:GetObject",
           "s3:PutObject",
@@ -233,6 +234,7 @@ resource "aws_iam_policy" "github_actions_terraform" {
           "s3:GetBucketWebsite",
           "s3:GetBucketLogging",
           "s3:GetBucketVersioning",
+          "s3:GetAccelerateConfiguration",
           # CloudWatch
           "logs:CreateLogGroup",
           "logs:DeleteLogGroup",
@@ -252,6 +254,7 @@ resource "aws_iam_policy" "github_actions_terraform" {
           "cloudwatch:GetDashboard",
           "cloudwatch:ListDashboards",
           "cloudwatch:TagResource",
+          "cloudwatch:ListTagsForResource",
           # SNS (for CloudWatch alarms)
           "sns:CreateTopic",
           "sns:DeleteTopic",
