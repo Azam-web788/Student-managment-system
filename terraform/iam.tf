@@ -171,6 +171,12 @@ resource "aws_iam_policy" "github_actions_terraform" {
           "iam:RemoveRoleFromInstanceProfile",
           "iam:TagRole",
           "iam:UntagRole",
+          "iam:TagPolicy",
+          "iam:UntagPolicy",
+          "iam:CreateOpenIDConnectProvider",
+          "iam:DeleteOpenIDConnectProvider",
+          "iam:TagOpenIDConnectProvider",
+          "iam:UntagOpenIDConnectProvider",
           # KMS
           "kms:CreateKey",
           "kms:DescribeKey",
