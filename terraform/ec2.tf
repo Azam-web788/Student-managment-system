@@ -108,6 +108,7 @@ resource "aws_launch_template" "main" {
     s3_bucket        = aws_s3_bucket.uploads.id
     deploy_bucket    = data.aws_s3_bucket.deployment.id
     node_env         = var.environment
+    NODE_ENV         = var.environment
     alb_dns          = aws_lb.main.dns_name
   }))
 
