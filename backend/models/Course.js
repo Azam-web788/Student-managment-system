@@ -27,7 +27,7 @@ const Course = {
       `SELECT COUNT(*) FROM courses c ${whereClause}`,
       params
     );
-    const total = parseInt(countResult.rows[0].count, 10);
+    const total = countResult.rows[0] ? parseInt(countResult.rows[0].count, 10) : 0;
 
     const result = await pool.query(
       `SELECT c.*, d.name as department_name, d.code as department_code,

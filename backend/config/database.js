@@ -13,6 +13,8 @@ const rawPool = new Pool({
   max: 20,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
+  // RDS PostgreSQL requires SSL in production; skip SSL for local dev PostgreSQL
+  ...(env.nodeEnv === 'production' ? { ssl: { rejectUnauthorized: false } } : {}),
 });
 
 rawPool.on('error', (err) => {

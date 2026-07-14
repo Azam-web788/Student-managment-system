@@ -20,9 +20,11 @@ on:
           - production
 
 env:
-  NODE_VERSION: '20'
+  NODE_VERSION: '22'
   AWS_REGION: 'us-east-1'
   TERRAFORM_VERSION: '1.5.0'
+  DOMAIN_NAME: ''
+  DEPLOY_BUCKET: ''
 
 jobs:
   lint-and-test:
@@ -37,6 +39,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
 
       - name: Install Backend Dependencies
         run: |
@@ -70,49 +74,6 @@ jobs:
           cd backend
           npm ls --depth=0
 
-  build-ami:
-    name: Build Packer AMI
-    needs: [lint-and-test]
-    runs-on: ubuntu-latest
-    outputs:
-      ami_id: ${{ steps.ami.outputs.ami_id }}
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Setup Packer
-        uses: hashicorp/setup-packer@v3
-        with:
-          version: 'latest'
-
-      - name: Initialize Packer
-        run: |
-          cd packer
-          packer init ami.pkr.hcl
-
-      - name: Build AMI
-        run: |
-          cd packer
-          packer build \
-            -var "aws_region=${{ env.AWS_REGION }}" \
-            -var "app_version=${{ github.sha }}" \
-            ami.pkr.hcl
-
-      - name: Get AMI ID
-        id: ami
-        run: |
-          echo "ami_id=$(cat manifest.json 2>/dev/null | jq -r '.builds[-1].artifact_id' 2>/dev/null | cut -d: -f2 2>/dev/null || echo '')" >> $GITHUB_OUTPUT
-        continue-on-error: true
-
   terraform-plan:
     name: Terraform Plan
     needs: [lint-and-test]
@@ -123,11 +84,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Configure AWS credentials
+      - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: arn:aws:iam::989864147584:role/student-management-github-actions
+          role-duration-seconds: 3600
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Setup Terraform
@@ -151,7 +112,8 @@ jobs:
           terraform plan \
             -var="db_password=${{ secrets.DB_PASSWORD }}" \
             -var="jwt_secret=${{ secrets.JWT_SECRET }}" \
-            -var="domain_name=${{ vars.DOMAIN_NAME }}" \
+            -var="domain_name=${{ vars.DOMAIN_NAME || env.DOMAIN_NAME }}" \
+            -var="deploy_bucket_name=${{ vars.DEPLOY_BUCKET || env.DEPLOY_BUCKET }}" \
             -out=tfplan
 
       - name: Upload Terraform Plan
@@ -162,26 +124,45 @@ jobs:
 
   terraform-apply:
     name: Terraform Apply
-    needs: [build-ami]
+    needs: [lint-and-test]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     environment: ${{ github.event.inputs.environment || 'staging' }}
+    outputs:
+      alb_dns: ${{ steps.alb.outputs.alb_dns }}
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Configure AWS credentials
+      - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: arn:aws:iam::989864147584:role/student-management-github-actions
+          role-duration-seconds: 3600
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ env.TERRAFORM_VERSION }}
+
+      - name: Package Backend
+        run: |
+          cd backend
+          tar -czf ../backend-deploy.tar.gz --exclude='node_modules' --exclude='.env' --exclude='logs' --exclude='uploads' --exclude='coverage' .
+
+      - name: Build Frontend
+        run: |
+          cd frontend
+          npm run build
+          tar -czf ../frontend-deploy.tar.gz dist/
+
+      - name: Upload Deployment Packages to S3
+        run: |
+          BUCKET="${DEPLOY_BUCKET:-student-management-deploy-989864147584}"
+          aws s3 cp backend-deploy.tar.gz "s3://${BUCKET}/backend.tar.gz"
+          aws s3 cp frontend-deploy.tar.gz "s3://${BUCKET}/frontend.tar.gz"
 
       - name: Terraform Init
         run: |
@@ -190,60 +171,39 @@ jobs:
 
       - name: Terraform Apply
         run: |
+          BUCKET="${DEPLOY_BUCKET:-student-management-deploy-989864147584}"
           cd terraform
           terraform apply -auto-approve \
             -var="db_password=${{ secrets.DB_PASSWORD }}" \
             -var="jwt_secret=${{ secrets.JWT_SECRET }}" \
-            -var="domain_name=${{ vars.DOMAIN_NAME }}" \
-            -var="ami_id=${{ needs.build-ami.outputs.ami_id }}"
+            -var="domain_name=${{ vars.DOMAIN_NAME || env.DOMAIN_NAME }}" \
+            -var="deploy_bucket_name=${BUCKET}"
 
       - name: Get ALB DNS
         id: alb
         run: |
           cd terraform
-          echo "alb_dns=$(terraform output -raw alb_dns_name)" >> $GITHUB_OUTPUT
-
-  deploy:
-    name: Deploy Application
-    needs: [terraform-apply]
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-    
-    steps:
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Force ASG Instance Refresh
-        run: |
-          ASG_NAME=$(aws autoscaling describe-auto-scaling-groups \
-            --filters "Name=tag:Name,Values=*-asg" \
-            --query "AutoScalingGroups[0].AutoScalingGroupName" \
-            --output text)
-          
-          if [ "$ASG_NAME" != "None" ]; then
-            aws autoscaling start-instance-refresh \
-              --auto-scaling-group-name "$ASG_NAME" \
-              --strategy Rolling \
-              --preferences '{"MinHealthyPercentage": 50, "InstanceWarmup": 120}'
-          fi
+          ALB_DNS=$(terraform output -raw alb_dns_name)
+          echo "alb_dns=$ALB_DNS" >> $GITHUB_OUTPUT
+          echo "## ✅ Deployment Complete" >> $GITHUB_STEP_SUMMARY
+          echo "**URL:** http://${ALB_DNS}" >> $GITHUB_STEP_SUMMARY
+          echo "**API Health:** http://${ALB_DNS}/api/health" >> $GITHUB_STEP_SUMMARY
 
       - name: Verify Deployment
         run: |
           ALB_DNS=$(cd terraform && terraform output -raw alb_dns_name)
           echo "Waiting for ALB to be ready..."
           for i in {1..30}; do
-            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://$ALB_DNS/api/health || echo "000")
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "http://$ALB_DNS/api/health" || echo "000")
             if [ "$HTTP_CODE" = "200" ]; then
-              echo "Deployment successful! API is healthy at http://$ALB_DNS/api/health"
-              break
+              echo "✅ API Healthy at http://$ALB_DNS/api/health"
+              echo "URL: http://$ALB_DNS"
+              exit 0
             fi
             echo "Attempt $i: HTTP $HTTP_CODE - waiting..."
             sleep 10
           done
+          echo "⚠️ API health check did not return 200 within timeout"
 
   security-scan:
     name: Security Scan

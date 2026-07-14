@@ -44,6 +44,7 @@ export default function StudentDetailsPage() {
   const dispatch = useDispatch();
   const [student, setStudent] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [avatarError, setAvatarError] = useState(false);
 
   useEffect(() => {
     loadStudent();
@@ -52,6 +53,7 @@ export default function StudentDetailsPage() {
   const loadStudent = async () => {
     try {
       setLoading(true);
+      setAvatarError(false); // reset for new student
       const res = await api.getStudent(id);
       setStudent(res.data);
     } catch (err) {
@@ -120,11 +122,12 @@ export default function StudentDetailsPage() {
 
       <Grid container spacing={3}>
         {/* Profile Card */}
-        <Grid xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Card sx={{ textAlign: 'center' }}>
             <CardContent sx={{ p: 3 }}>
               <Avatar
-                src={student.profile_image_url}
+                src={avatarError ? undefined : student.profile_image_url}
+                imgProps={{ onError: () => setAvatarError(true) }}
                 sx={{
                   width: 120,
                   height: 120,
@@ -162,7 +165,7 @@ export default function StudentDetailsPage() {
         </Grid>
 
         {/* Details Card */}
-        <Grid xs={12} md={8}>
+        <Grid size={{ xs: 12, md: 8 }}>
           <Card>
             <CardContent sx={{ p: 3 }}>
               <Typography variant="h6" fontWeight={600} gutterBottom>
@@ -170,13 +173,13 @@ export default function StudentDetailsPage() {
               </Typography>
               <Divider sx={{ mb: 1 }} />
               <Grid container spacing={0}>
-                <Grid xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <InfoRow icon={<EmailIcon fontSize="small" />} label="Email" value={student.email} />
                   <InfoRow icon={<PhoneIcon fontSize="small" />} label="Phone" value={student.phone} />
                   <InfoRow icon={<CakeIcon fontSize="small" />} label="Date of Birth" value={student.date_of_birth ? new Date(student.date_of_birth).toLocaleDateString() : '-'} />
                   <InfoRow icon={<BadgeIcon fontSize="small" />} label="Gender" value={student.gender} />
                 </Grid>
-                <Grid xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <InfoRow icon={<SchoolIcon fontSize="small" />} label="Department" value={student.department_name} />
                   <InfoRow icon={<SchoolIcon fontSize="small" />} label="Course" value={student.course_name} />
                   <InfoRow icon={<LocationOnIcon fontSize="small" />} label="Location" value={[student.city, student.state].filter(Boolean).join(', ') || '-'} />

@@ -53,3 +53,24 @@ output "kms_key_id" {
   description = "The KMS key ID"
   value       = aws_kms_key.main.key_id
 }
+
+output "deploy_bucket_name" {
+  description = "The S3 bucket name for deployment code"
+  value       = data.aws_s3_bucket.deployment.id
+}
+
+output "ssh_private_key" {
+  description = "SSH private key for EC2 instances"
+  value       = tls_private_key.main.private_key_pem
+  sensitive   = true
+}
+
+output "github_actions_role_arn" {
+  description = "IAM role ARN for GitHub Actions OIDC authentication"
+  value       = aws_iam_role.github_actions.arn
+}
+
+output "github_actions_role_name" {
+  description = "IAM role name for GitHub Actions OIDC authentication"
+  value       = aws_iam_role.github_actions.name
+}

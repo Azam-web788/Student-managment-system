@@ -25,7 +25,7 @@ describe('uiSlice', () => {
           open: false,
           title: '',
           message: '',
-          onConfirm: null,
+          callbackId: null,
         },
       });
     });
@@ -47,7 +47,7 @@ describe('uiSlice', () => {
       expect(state.confirmDialog.open).toBe(false);
       expect(state.confirmDialog.title).toBe('');
       expect(state.confirmDialog.message).toBe('');
-      expect(state.confirmDialog.onConfirm).toBeNull();
+      expect(state.confirmDialog.callbackId).toBeNull();
     });
   });
 
@@ -58,7 +58,7 @@ describe('uiSlice', () => {
       const prevState = {
         sidebarOpen: true,
         snackbar: { open: false, message: '', severity: 'success' },
-        confirmDialog: { open: false, title: '', message: '', onConfirm: null },
+        confirmDialog: { open: false, title: '', message: '', callbackId: null },
       };
       const state = uiReducer(prevState, toggleSidebar());
       expect(state.sidebarOpen).toBe(false);
@@ -68,7 +68,7 @@ describe('uiSlice', () => {
       const prevState = {
         sidebarOpen: false,
         snackbar: { open: false, message: '', severity: 'success' },
-        confirmDialog: { open: false, title: '', message: '', onConfirm: null },
+        confirmDialog: { open: false, title: '', message: '', callbackId: null },
       };
       const state = uiReducer(prevState, toggleSidebar());
       expect(state.sidebarOpen).toBe(true);
@@ -78,7 +78,7 @@ describe('uiSlice', () => {
       const prevState = {
         sidebarOpen: true,
         snackbar: { open: true, message: 'Hello', severity: 'info' },
-        confirmDialog: { open: true, title: 'Sure?', message: 'Go?', onConfirm: null },
+        confirmDialog: { open: true, title: 'Sure?', message: 'Go?', callbackId: null },
       };
       const state = uiReducer(prevState, toggleSidebar());
       expect(state.sidebarOpen).toBe(false);
@@ -97,7 +97,7 @@ describe('uiSlice', () => {
       const prevState = {
         sidebarOpen: false,
         snackbar: { open: false, message: '', severity: 'success' },
-        confirmDialog: { open: false, title: '', message: '', onConfirm: null },
+        confirmDialog: { open: false, title: '', message: '', callbackId: null },
       };
       const state = uiReducer(prevState, setSidebarOpen(true));
       expect(state.sidebarOpen).toBe(true);
@@ -146,7 +146,7 @@ describe('uiSlice', () => {
       const prevState = {
         sidebarOpen: true,
         snackbar: { open: true, message: 'Hi', severity: 'warning' },
-        confirmDialog: { open: false, title: '', message: '', onConfirm: null },
+        confirmDialog: { open: false, title: '', message: '', callbackId: null },
       };
       const state = uiReducer(prevState, hideSnackbar());
       expect(state.snackbar.open).toBe(false);
@@ -156,7 +156,7 @@ describe('uiSlice', () => {
       const prevState = {
         sidebarOpen: true,
         snackbar: { open: true, message: 'Keep me', severity: 'error' },
-        confirmDialog: { open: false, title: '', message: '', onConfirm: null },
+        confirmDialog: { open: false, title: '', message: '', callbackId: null },
       };
       const state = uiReducer(prevState, hideSnackbar());
       expect(state.snackbar.open).toBe(false);
@@ -185,22 +185,24 @@ describe('uiSlice', () => {
       expect(state.confirmDialog.message).toBe('Are you sure?');
     });
 
-    it('should store onConfirm callback', () => {
+    it('should store a callbackId when onConfirm is provided', () => {
       const onConfirm = () => 'confirmed';
       const state = uiReducer(
         undefined,
         showConfirmDialog({ title: 'Action', message: 'Proceed?', onConfirm }),
       );
       expect(state.confirmDialog.open).toBe(true);
-      expect(state.confirmDialog.onConfirm).toBe(onConfirm);
+      // callbackId should be a positive integer
+      expect(typeof state.confirmDialog.callbackId).toBe('number');
+      expect(state.confirmDialog.callbackId).toBeGreaterThan(0);
     });
 
-    it('should set onConfirm to null when not provided', () => {
+    it('should set callbackId to null when onConfirm not provided', () => {
       const state = uiReducer(
         undefined,
         showConfirmDialog({ title: 'Test', message: 'Go?' }),
       );
-      expect(state.confirmDialog.onConfirm).toBeNull();
+      expect(state.confirmDialog.callbackId).toBeNull();
     });
   });
 
@@ -213,15 +215,14 @@ describe('uiSlice', () => {
           open: true,
           title: 'Delete?',
           message: 'Proceed?',
-          onConfirm: () => {},
+          callbackId: null,
         },
       };
       const state = uiReducer(prevState, hideConfirmDialog());
       expect(state.confirmDialog.open).toBe(false);
     });
 
-    it('should preserve title, message and onConfirm after hiding', () => {
-      const onConfirm = () => {};
+    it('should preserve title, message and callbackId after hiding', () => {
       const prevState = {
         sidebarOpen: true,
         snackbar: { open: false, message: '', severity: 'success' },
@@ -229,14 +230,14 @@ describe('uiSlice', () => {
           open: true,
           title: 'Delete?',
           message: 'Proceed?',
-          onConfirm,
+          callbackId: null,
         },
       };
       const state = uiReducer(prevState, hideConfirmDialog());
       expect(state.confirmDialog.open).toBe(false);
       expect(state.confirmDialog.title).toBe('Delete?');
       expect(state.confirmDialog.message).toBe('Proceed?');
-      expect(state.confirmDialog.onConfirm).toBe(onConfirm);
+      expect(state.confirmDialog.callbackId).toBeNull();
     });
   });
 

@@ -60,7 +60,7 @@ const Student = {
       `SELECT COUNT(*) FROM students s ${whereClause}`,
       params
     );
-    const total = parseInt(countResult.rows[0].count, 10);
+    const total = countResult.rows[0] ? parseInt(countResult.rows[0].count, 10) : 0;
 
     const result = await pool.query(
       `SELECT s.*, 
@@ -116,9 +116,9 @@ const Student = {
     const year = new Date().getFullYear().toString().slice(-2);
     const result = await pool.query(
       `SELECT COUNT(*) FROM students WHERE student_id LIKE $1`,
-      [`${year}%`]
+      [`STU${year}%`]
     );
-    const count = parseInt(result.rows[0].count, 10);
+    const count = result.rows[0] ? parseInt(result.rows[0].count, 10) : 0;
     const seq = String(count + 1).padStart(4, '0');
     return `STU${year}${seq}`;
   },
@@ -168,6 +168,7 @@ const Student = {
       profileImageUrl: 'profile_image_url',
       emergencyContactName: 'emergency_contact_name',
       emergencyContactPhone: 'emergency_contact_phone',
+      isActive: 'is_active',
     };
 
     for (const [key, column] of Object.entries(fieldMap)) {

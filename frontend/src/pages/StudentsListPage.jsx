@@ -20,6 +20,11 @@ import Avatar from '@mui/material/Avatar';
 import IconButton from '@mui/material/IconButton';
 import MenuItem from '@mui/material/MenuItem';
 
+import Grid from '@mui/material/Grid';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import Select from '@mui/material/Select';
+import Skeleton from '@mui/material/Skeleton';
 import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -152,7 +157,7 @@ export default function StudentsListPage() {
 
         {showFilters && (
           <Grid container spacing={2} sx={{ mt: 2 }}>
-            <Grid xs={12} sm={6} md={3}>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <FormControl fullWidth size="small">
                 <InputLabel>Department</InputLabel>
                 <Select
@@ -167,7 +172,7 @@ export default function StudentsListPage() {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid xs={12} sm={6} md={3}>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <FormControl fullWidth size="small">
                 <InputLabel>Status</InputLabel>
                 <Select
@@ -183,7 +188,7 @@ export default function StudentsListPage() {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid xs={12} sm={6} md={3}>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <FormControl fullWidth size="small">
                 <InputLabel>Gender</InputLabel>
                 <Select

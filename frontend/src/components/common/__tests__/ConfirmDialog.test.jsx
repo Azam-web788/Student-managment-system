@@ -1,8 +1,9 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { act } from 'react';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
-import uiReducer from '../../../redux/slices/uiSlice';
+import uiReducer, { registerConfirmCallback, removeConfirmCallback } from '../../../redux/slices/uiSlice';
 import ConfirmDialog from '../ConfirmDialog';
 
 function createStore(overrides = {}) {
@@ -16,7 +17,7 @@ function createStore(overrides = {}) {
           open: true,
           title: 'Confirm Delete',
           message: 'Are you sure you want to delete this item?',
-          onConfirm: null,
+          callbackId: null,
           ...overrides,
         },
       },
@@ -26,24 +27,31 @@ function createStore(overrides = {}) {
 
 function renderDialog(storeOverrides = {}) {
   const store = createStore(storeOverrides);
-  return render(
-    <Provider store={store}>
-      <ConfirmDialog />
-    </Provider>,
-  );
+  return {
+    store,
+    ...render(
+      <Provider store={store}>
+        <ConfirmDialog />
+      </Provider>,
+    ),
+  };
 }
 
 describe('ConfirmDialog', () => {
-  it('renders the dialog with title and message', () => {
+  it('renders the dialog with title and message', async () => {
     renderDialog();
-    expect(screen.getByText('Confirm Delete')).toBeInTheDocument();
-    expect(screen.getByText('Are you sure you want to delete this item?')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Confirm Delete')).toBeInTheDocument();
+      expect(screen.getByText('Are you sure you want to delete this item?')).toBeInTheDocument();
+    });
   });
 
-  it('renders Cancel and Confirm buttons', () => {
+  it('renders Cancel and Confirm buttons', async () => {
     renderDialog();
-    expect(screen.getByRole('button', { name: /cancel/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /confirm/i })).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /cancel/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /confirm/i })).toBeInTheDocument();
+    });
   });
 
   it('does not render when open is false', () => {
@@ -51,30 +59,37 @@ describe('ConfirmDialog', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
-  it('calls onConfirm and hides dialog when Confirm is clicked', () => {
+  it('calls onConfirm and hides dialog when Confirm is clicked', async () => {
     const onConfirm = vi.fn();
-    renderDialog({ onConfirm });
+    // Register the callback in the registry and pass its ID via the store
+    const callbackId = registerConfirmCallback(onConfirm);
+    renderDialog({ callbackId });
 
-    fireEvent.click(screen.getByRole('button', { name: /confirm/i }));
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /confirm/i }));
+    });
 
     expect(onConfirm).toHaveBeenCalledTimes(1);
+    // Clean up after the test
+    removeConfirmCallback(callbackId);
   });
 
-  it('hides the dialog when Cancel is clicked', () => {
-    const store = createStore({ onConfirm: null });
-    render(
-      <Provider store={store}>
-        <ConfirmDialog />
-      </Provider>,
-    );
+  it('hides the dialog when Cancel is clicked', async () => {
+    const { store } = renderDialog();
 
     // Dialog should be visible initially
-    expect(screen.getByText('Confirm Delete')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Confirm Delete')).toBeInTheDocument();
+    });
 
-    fireEvent.click(screen.getByRole('button', { name: /cancel/i }));
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /cancel/i }));
+    });
 
     // After cancel, the store dispatches hideConfirmDialog which sets open to false
-    const updatedState = store.getState().ui.confirmDialog;
-    expect(updatedState.open).toBe(false);
+    await waitFor(() => {
+      const updatedState = store.getState().ui.confirmDialog;
+      expect(updatedState.open).toBe(false);
+    });
   });
 });

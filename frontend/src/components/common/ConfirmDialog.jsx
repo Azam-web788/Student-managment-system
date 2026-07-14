@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
@@ -5,22 +6,22 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogActions from '@mui/material/DialogActions';
 import Button from '@mui/material/Button';
-import { hideConfirmDialog } from '../../redux/slices/uiSlice';
+import { hideConfirmDialog, executeConfirmCallback } from '../../redux/slices/uiSlice';
 
 export default function ConfirmDialog() {
   const dispatch = useDispatch();
-  const { open, title, message, onConfirm } = useSelector((state) => state.ui.confirmDialog);
+  const { open, title, message, callbackId } = useSelector((state) => state.ui.confirmDialog);
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     dispatch(hideConfirmDialog());
-  };
+  }, [dispatch]);
 
-  const handleConfirm = async () => {
-    if (onConfirm) {
-      await onConfirm();
+  const handleConfirm = useCallback(async () => {
+    if (callbackId) {
+      await executeConfirmCallback(callbackId);
     }
     dispatch(hideConfirmDialog());
-  };
+  }, [callbackId, dispatch]);
 
   return (
     <Dialog

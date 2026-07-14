@@ -18,6 +18,10 @@ import StudentFormPage from './pages/StudentFormPage';
 import StudentDetailsPage from './pages/StudentDetailsPage';
 import DepartmentsPage from './pages/DepartmentsPage';
 import CoursesPage from './pages/CoursesPage';
+import StudentDashboard from './pages/StudentDashboard';
+import StudentProfileEdit from './pages/StudentProfileEdit';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated } = useSelector((state) => state.auth);
@@ -27,10 +31,27 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
+function AdminRoute({ children }) {
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (user?.role !== 'admin' && user?.role !== 'superadmin') return <Navigate to="/student/dashboard" replace />;
+  return children;
+}
+
+function StudentRoute({ children }) {
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (user?.role !== 'student') return <Navigate to="/dashboard" replace />;
+  return children;
+}
+
 function PublicRoute({ children }) {
-  const { isAuthenticated } = useSelector((state) => state.auth);
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
   if (isAuthenticated) {
-    return <Navigate to="/dashboard" replace />;
+    if (user?.role === 'admin' || user?.role === 'superadmin') {
+      return <Navigate to="/dashboard" replace />;
+    }
+    return <Navigate to="/student/dashboard" replace />;
   }
   return children;
 }
@@ -52,13 +73,45 @@ export default function App() {
           }
         />
 
-        {/* Protected Routes */}
+        {/* Public: Forgot & Reset Password */}
+        <Route
+          path="/forgot-password"
+          element={
+            <AuthLayout>
+              <ForgotPasswordPage />
+            </AuthLayout>
+          }
+        />
+        <Route
+          path="/reset-password"
+          element={
+            <AuthLayout>
+              <ResetPasswordPage />
+            </AuthLayout>
+          }
+        />
+
+        {/* Student Routes */}
+        <Route
+          path="/student"
+          element={
+            <StudentRoute>
+              <MainLayout />
+            </StudentRoute>
+          }
+        >
+          <Route index element={<Navigate to="/student/dashboard" replace />} />
+          <Route path="dashboard" element={<StudentDashboard />} />
+          <Route path="profile/edit" element={<StudentProfileEdit />} />
+        </Route>
+
+        {/* Admin Routes */}
         <Route
           path="/"
           element={
-            <ProtectedRoute>
+            <AdminRoute>
               <MainLayout />
-            </ProtectedRoute>
+            </AdminRoute>
           }
         >
           <Route index element={<Navigate to="/dashboard" replace />} />
@@ -72,7 +125,7 @@ export default function App() {
         </Route>
 
         {/* Fallback */}
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </>
   );

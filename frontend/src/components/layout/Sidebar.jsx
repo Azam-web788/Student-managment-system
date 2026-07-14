@@ -1,4 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import List from '@mui/material/List';
@@ -15,19 +16,29 @@ import PeopleIcon from '@mui/icons-material/People';
 import BusinessIcon from '@mui/icons-material/Business';
 import BookIcon from '@mui/icons-material/Book';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
 const DRAWER_WIDTH = 280;
 
-const menuItems = [
+const adminMenu = [
   { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
   { text: 'Students', icon: <PeopleIcon />, path: '/students' },
   { text: 'Departments', icon: <BusinessIcon />, path: '/departments' },
   { text: 'Courses', icon: <BookIcon />, path: '/courses' },
 ];
 
+const studentMenu = [
+  { text: 'My Profile', icon: <AccountCircleIcon />, path: '/student/dashboard' },
+];
+
 export default function Sidebar({ open, mobileOpen, onClose, onToggle }) {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user } = useSelector((state) => state.auth);
+  
+  const isStudent = user?.role === 'student';
+  const menuItems = isStudent ? studentMenu : adminMenu;
+  const title = isStudent ? 'Student Portal' : 'Admin Panel';
 
   const drawerContent = (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -46,10 +57,10 @@ export default function Sidebar({ open, mobileOpen, onClose, onToggle }) {
           <SchoolIcon sx={{ color: 'primary.main', fontSize: 28 }} />
           <Box>
             <Typography variant="subtitle1" fontWeight={700} color="text.primary" lineHeight={1.2}>
-              SMS
+              {isStudent ? 'Student' : 'SMS'}
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              Student Management
+              {title}
             </Typography>
           </Box>
         </Box>

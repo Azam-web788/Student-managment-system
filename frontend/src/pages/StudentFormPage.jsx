@@ -40,6 +40,7 @@ export default function StudentFormPage() {
     firstName: '',
     lastName: '',
     email: '',
+    password: '',
     phone: '',
     dateOfBirth: '',
     gender: '',
@@ -54,6 +55,7 @@ export default function StudentFormPage() {
     emergencyContactName: '',
     emergencyContactPhone: '',
   });
+  const [passwordError, setPasswordError] = useState('');
 
   useEffect(() => {
     loadDepartments();
@@ -93,6 +95,7 @@ export default function StudentFormPage() {
         firstName: student.first_name || '',
         lastName: student.last_name || '',
         email: student.email || '',
+        password: '',
         phone: student.phone || '',
         dateOfBirth: student.date_of_birth ? student.date_of_birth.split('T')[0] : '',
         gender: student.gender || '',
@@ -151,12 +154,30 @@ export default function StudentFormPage() {
     e.preventDefault();
     setSaving(true);
     setError(null);
+    setPasswordError('');
+
+    // If creating new student, validate password
+    if (!isEdit) {
+      if (!formData.password) {
+        setPasswordError('Password is required for new student accounts');
+        setSaving(false);
+        return;
+      }
+      if (formData.password.length < 6) {
+        setPasswordError('Password must be at least 6 characters');
+        setSaving(false);
+        return;
+      }
+    }
 
     try {
       const formPayload = new FormData();
       formPayload.append('firstName', formData.firstName);
       formPayload.append('lastName', formData.lastName);
       formPayload.append('email', formData.email);
+      if (formData.password) {
+        formPayload.append('password', formData.password);
+      }
       formPayload.append('phone', formData.phone);
       formPayload.append('dateOfBirth', formData.dateOfBirth);
       formPayload.append('gender', formData.gender);
@@ -226,22 +247,38 @@ export default function StudentFormPage() {
               Personal Information
             </Typography>
             <Grid container spacing={2} sx={{ mt: 1 }}>
-              <Grid xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField fullWidth label="First Name" name="firstName" value={formData.firstName} onChange={handleChange} required />
               </Grid>
-              <Grid xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField fullWidth label="Last Name" name="lastName" value={formData.lastName} onChange={handleChange} required />
               </Grid>
-              <Grid xs={12} sm={6}>
-                <TextField fullWidth label="Email" name="email" type="email" value={formData.email} onChange={handleChange} required />
+              <Grid size={{ xs: 12, sm: 6 }}>                        <TextField fullWidth label="Email" name="email" type="email" value={formData.email} onChange={handleChange} required />
               </Grid>
-              <Grid xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField fullWidth label="Phone" name="phone" value={formData.phone} onChange={handleChange} />
               </Grid>
-              <Grid xs={12} sm={6}>
+              {!isEdit && (
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <TextField
+                    fullWidth
+                    label="Password"
+                    name="password"
+                    type="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    required={!isEdit}
+                    error={Boolean(passwordError)}
+                    helperText={passwordError || 'Student will use this password to login'}
+                    placeholder="Min. 6 characters"
+                    inputProps={{ maxLength: 100 }}
+                  />
+                </Grid>
+              )}
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField fullWidth label="Date of Birth" name="dateOfBirth" type="date" value={formData.dateOfBirth} onChange={handleChange} InputLabelProps={{ shrink: true }} />
               </Grid>
-              <Grid xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <FormControl fullWidth>
                   <InputLabel>Gender</InputLabel>
                   <Select name="gender" value={formData.gender} label="Gender" onChange={handleChange}>
@@ -262,19 +299,19 @@ export default function StudentFormPage() {
               Address
             </Typography>
             <Grid container spacing={2} sx={{ mt: 1 }}>
-              <Grid xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <TextField fullWidth label="Address" name="address" value={formData.address} onChange={handleChange} multiline rows={2} />
               </Grid>
-              <Grid xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField fullWidth label="City" name="city" value={formData.city} onChange={handleChange} />
               </Grid>
-              <Grid xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField fullWidth label="State" name="state" value={formData.state} onChange={handleChange} />
               </Grid>
-              <Grid xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField fullWidth label="ZIP Code" name="zipCode" value={formData.zipCode} onChange={handleChange} />
               </Grid>
-              <Grid xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField fullWidth label="Country" name="country" value={formData.country} onChange={handleChange} />
               </Grid>
             </Grid>
@@ -287,7 +324,7 @@ export default function StudentFormPage() {
               Academic Information
             </Typography>
             <Grid container spacing={2} sx={{ mt: 1 }}>
-              <Grid xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <FormControl fullWidth required>
                   <InputLabel>Department</InputLabel>
                   <Select name="departmentId" value={formData.departmentId} label="Department" onChange={handleChange}>
@@ -298,7 +335,7 @@ export default function StudentFormPage() {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <FormControl fullWidth>
                   <InputLabel>Course</InputLabel>
                   <Select name="courseId" value={formData.courseId} label="Course" onChange={handleChange} disabled={!formData.departmentId}>
@@ -309,7 +346,7 @@ export default function StudentFormPage() {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <FormControl fullWidth>
                   <InputLabel>Status</InputLabel>
                   <Select name="status" value={formData.status} label="Status" onChange={handleChange}>
@@ -330,10 +367,10 @@ export default function StudentFormPage() {
               Emergency Contact
             </Typography>
             <Grid container spacing={2} sx={{ mt: 1 }}>
-              <Grid xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField fullWidth label="Contact Name" name="emergencyContactName" value={formData.emergencyContactName} onChange={handleChange} />
               </Grid>
-              <Grid xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField fullWidth label="Contact Phone" name="emergencyContactPhone" value={formData.emergencyContactPhone} onChange={handleChange} />
               </Grid>
             </Grid>

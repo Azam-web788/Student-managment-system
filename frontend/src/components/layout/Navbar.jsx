@@ -120,6 +120,9 @@ export default function Navbar({ onMenuClick, sidebarOpen, onToggleSidebar }) {
             <Typography variant="caption" color="text.secondary">
               {user?.email || ''}
             </Typography>
+            <Typography variant="caption" color="primary.main" fontWeight={600} sx={{ mt: 0.5, display: 'block', textTransform: 'capitalize' }}>
+              {user?.role || ''}
+            </Typography>
           </Box>
           <Divider />
           <MenuItem onClick={handleClose} sx={{ borderRadius: 1, mx: 0.5 }}>

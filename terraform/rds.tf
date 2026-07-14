@@ -29,6 +29,7 @@ resource "aws_db_parameter_group" "main" {
     name  = "log_statement"
     value = "ddl"
   }
+
 }
 
 # RDS PostgreSQL Instance
@@ -80,6 +81,8 @@ resource "aws_db_instance" "main" {
   tags = {
     Name = "${var.project_name}-db"
   }
+
+
 }
 
 # IAM Role for RDS enhanced monitoring

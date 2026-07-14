@@ -21,7 +21,7 @@ const Department = {
       `SELECT COUNT(*) FROM departments d ${whereClause}`,
       params
     );
-    const total = parseInt(countResult.rows[0].count, 10);
+    const total = countResult.rows[0] ? parseInt(countResult.rows[0].count, 10) : 0;
 
     const result = await pool.query(
       `SELECT d.*, 

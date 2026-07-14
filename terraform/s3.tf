@@ -7,7 +7,12 @@ resource "aws_s3_bucket" "uploads" {
   }
 }
 
-# Bucket ownership controls
+# S3 Bucket for Deployment Code (pre-created manually)
+data "aws_s3_bucket" "deployment" {
+  bucket = var.deploy_bucket_name
+}
+
+# Bucket ownership controls for uploads
 resource "aws_s3_bucket_ownership_controls" "uploads" {
   bucket = aws_s3_bucket.uploads.id
   rule {
@@ -15,7 +20,7 @@ resource "aws_s3_bucket_ownership_controls" "uploads" {
   }
 }
 
-# Block public access
+# Block public access for uploads
 resource "aws_s3_bucket_public_access_block" "uploads" {
   bucket = aws_s3_bucket.uploads.id
 
@@ -25,7 +30,7 @@ resource "aws_s3_bucket_public_access_block" "uploads" {
   restrict_public_buckets = true
 }
 
-# Server-side encryption
+# Server-side encryption for uploads
 resource "aws_s3_bucket_server_side_encryption_configuration" "uploads" {
   bucket = aws_s3_bucket.uploads.id
 
@@ -37,13 +42,16 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "uploads" {
   }
 }
 
-# Lifecycle configuration
+# Lifecycle configuration for uploads
 resource "aws_s3_bucket_lifecycle_configuration" "uploads" {
   bucket = aws_s3_bucket.uploads.id
 
   rule {
     id     = "expire-old-uploads"
     status = "Enabled"
+    filter {
+      prefix = ""
+    }
 
     expiration {
       days = 365
@@ -68,7 +76,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "uploads" {
 # Data source for current account ID
 data "aws_caller_identity" "current" {}
 
-# S3 bucket policy
+# S3 bucket policy for uploads
 resource "aws_s3_bucket_policy" "uploads" {
   bucket = aws_s3_bucket.uploads.id
   policy = data.aws_iam_policy_document.uploads.json
@@ -90,6 +98,30 @@ data "aws_iam_policy_document" "uploads" {
     resources = [
       aws_s3_bucket.uploads.arn,
       "${aws_s3_bucket.uploads.arn}/*"
+    ]
+  }
+}
+
+# S3 bucket policy for deployment - attach to pre-created bucket
+resource "aws_s3_bucket_policy" "deployment" {
+  bucket = data.aws_s3_bucket.deployment.id
+  policy = data.aws_iam_policy_document.deployment.json
+}
+
+data "aws_iam_policy_document" "deployment" {
+  statement {
+    effect = "Allow"
+    principals {
+      type        = "AWS"
+      identifiers = [aws_iam_role.ec2.arn]
+    }
+    actions = [
+      "s3:GetObject",
+      "s3:ListBucket"
+    ]
+    resources = [
+      data.aws_s3_bucket.deployment.arn,
+      "${data.aws_s3_bucket.deployment.arn}/*"
     ]
   }
 }

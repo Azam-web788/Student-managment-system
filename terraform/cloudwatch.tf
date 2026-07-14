@@ -2,7 +2,6 @@
 resource "aws_cloudwatch_log_group" "app" {
   name              = "/${var.project_name}/app"
   retention_in_days = var.log_retention_days
-  kms_key_id        = aws_kms_key.main.arn
 
   tags = {
     Name = "${var.project_name}-app-logs"
@@ -29,12 +28,6 @@ resource "aws_cloudwatch_log_group" "error" {
   }
 }
 
-# ALB Access Logs to S3
-resource "aws_lb_access_logs" "alb" {
-  bucket  = aws_s3_bucket.uploads.bucket
-  prefix  = "alb-logs"
-  enabled = true
-}
 
 # CloudWatch Alarm - High Error Rate
 resource "aws_cloudwatch_metric_alarm" "high_error_rate" {

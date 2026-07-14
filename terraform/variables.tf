@@ -125,6 +125,12 @@ variable "log_retention_days" {
   default     = 30
 }
 
+variable "deploy_bucket_name" {
+  description = "Pre-created S3 bucket name for deployment code"
+  type        = string
+  default     = "student-management-deploy-989864147584"
+}
+
 variable "tags" {
   description = "Additional tags"
   type        = map(string)

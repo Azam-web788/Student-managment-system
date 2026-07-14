@@ -34,10 +34,10 @@ app.use(cors({
   credentials: true,
 }));
 
-// General rate limiting
+// General rate limiting — higher limit in development for testing
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: env.nodeEnv === 'production' ? 100 : 500,
   standardHeaders: true,
   legacyHeaders: false,
   message: {
@@ -51,7 +51,7 @@ app.use('/api/', limiter);
 // Strict rate limiter for auth routes
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 10,
+  max: env.nodeEnv === 'production' ? 10 : 50,
   standardHeaders: true,
   legacyHeaders: false,
   message: {
@@ -141,10 +141,42 @@ async function checkDatabaseHealth() {
   }
 }
 
+// Email configuration check
+async function checkEmailConfig() {
+  try {
+    const { default: EmailService } = await import('./services/emailService.js');
+    const transporter = await EmailService.getTransporter();
+    if (!transporter) {
+      logger.warn(
+        '⚠️  Email is NOT configured. The following features will NOT work:\n' +
+        '   • Password reset (Forgot Password)\n' +
+        '   • Student welcome emails\n' +
+        '\n' +
+        '   To enable emails, add these to your .env file (for Gmail):\n' +
+        '   EMAIL_SERVICE=gmail\n' +
+        '   EMAIL_USER=your-email@gmail.com\n' +
+        '   EMAIL_PASSWORD=your-16-char-app-password\n' +
+        '\n' +
+        '   Or configure a custom SMTP server with:\n' +
+        '   EMAIL_HOST=smtp.example.com\n' +
+        '   EMAIL_PORT=587\n' +
+        '   EMAIL_USER=your-email@example.com\n' +
+        '   EMAIL_PASSWORD=your-password'
+      );
+    }
+  } catch (err) {
+    // Email service check is non-critical — don't block startup
+    logger.debug('Email config check skipped:', err.message);
+  }
+}
+
 // Server startup - skip in test environment so supertest can manage the lifecycle
 if (process.env.NODE_ENV !== 'test') {
   // Check database on startup
   checkDatabaseHealth();
+  
+  // Check email configuration (non-blocking)
+  checkEmailConfig();
 
   const server = app.listen(env.port, () => {
     logger.info(`Server running in ${env.nodeEnv} mode on port ${env.port}`);

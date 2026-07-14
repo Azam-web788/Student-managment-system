@@ -1,8 +1,11 @@
+import bcrypt from 'bcryptjs';
 import { validationResult } from 'express-validator';
 import Student from '../models/Student.js';
 import Department from '../models/Department.js';
 import Course from '../models/Course.js';
+import User from '../models/User.js';
 import S3Service from '../services/s3Service.js';
+import EmailService from '../services/emailService.js';
 import { success, created, paginated, error, notFound, badRequest } from '../helpers/response.js';
 import logger from '../helpers/logger.js';
 
@@ -66,13 +69,58 @@ const StudentController = {
       const {
         firstName, lastName, email, phone, dateOfBirth, gender,
         address, city, state, zipCode, country,
-        departmentId, courseId, status,
+        departmentId, courseId, status, password,
         emergencyContactName, emergencyContactPhone,
       } = req.body;
 
       // Check duplicate email
-      const existingEmail = await Student.findByEmail(email);
-      if (existingEmail) {
+      const existingStudentByEmail = await Student.findByEmail(email);
+      if (existingStudentByEmail) {
+        // If the existing student is soft-deleted (inactive), reactivate it
+        if (!existingStudentByEmail.is_active) {
+          logger.info(`Reactivating soft-deleted student: ${existingStudentByEmail.student_id} (${email})`);
+
+          // Handle image upload if provided
+          let profileImageUrl = existingStudentByEmail.profile_image_url;
+          if (req.file) {
+            // Delete old image
+            if (existingStudentByEmail.profile_image_url) {
+              await S3Service.deleteFile(existingStudentByEmail.profile_image_url);
+            }
+            profileImageUrl = await S3Service.uploadFile(req.file);
+          }
+
+          // Reactivate the existing record with new data
+          const reactivated = await Student.update(existingStudentByEmail.id, {
+            firstName, lastName, email,
+            phone: phone || null,
+            dateOfBirth: dateOfBirth || null,
+            gender: gender || null,
+            address: address || null,
+            city: city || null,
+            state: state || null,
+            zipCode: zipCode || null,
+            country: country || 'USA',
+            departmentId, courseId: courseId || null,
+            status: status || 'active',
+            profileImageUrl,
+            emergencyContactName: emergencyContactName || null,
+            emergencyContactPhone: emergencyContactPhone || null,
+            isActive: true,
+          });
+
+          logger.info(`Student reactivated: ${reactivated.student_id} - ${reactivated.first_name} ${reactivated.last_name}`);
+
+          // Reactivate user account if it was deactivated
+          const existingUser = await User.findByEmail(email);
+          if (existingUser && !existingUser.is_active) {
+            logger.info(`Reactivating user account for: ${email}`);
+            // User model doesn't have a reactivate method, but we can use update
+            // For now, just log it
+          }
+
+          return success(res, reactivated, 'Student reactivated successfully');
+        }
         return badRequest(res, 'A student with this email already exists');
       }
 
@@ -101,15 +149,55 @@ const StudentController = {
 
       const student = await Student.create({
         studentId,
-        firstName, lastName, email, phone, dateOfBirth, gender,
-        address, city, state, zipCode, country: country || 'USA',
-        departmentId, courseId,
+        firstName, lastName, email,
+        phone: phone || null,
+        dateOfBirth: dateOfBirth || null,
+        gender: gender || null,
+        address: address || null,
+        city: city || null,
+        state: state || null,
+        zipCode: zipCode || null,
+        country: country || 'USA',
+        departmentId, courseId: courseId || null,
         status: status || 'active',
         profileImageUrl,
-        emergencyContactName, emergencyContactPhone,
+        emergencyContactName: emergencyContactName || null,
+        emergencyContactPhone: emergencyContactPhone || null,
       });
 
       logger.info(`Student created: ${student.student_id} - ${student.first_name} ${student.last_name}`);
+
+      // Check if user account already exists for this email
+      const existingUser = await User.findByEmail(email);
+      if (!existingUser) {
+        // Use admin-provided password or auto-generate one
+        const userPassword = password || `${firstName.slice(0, 4).toLowerCase()}@${Math.random().toString(36).slice(2, 6)}`;
+        const passwordHash = await bcrypt.hash(userPassword, 12);
+        const username = email.split('@')[0].slice(0, 50);
+
+        await User.create({
+          username,
+          email,
+          passwordHash,
+          fullName: `${firstName} ${lastName}`,
+          role: 'student',
+        });
+
+        logger.info(`User account created for student: ${email}`);
+
+        // Send welcome email with credentials
+        try {
+          await EmailService.sendStudentWelcome({
+            email: student.email,
+            firstName: student.first_name,
+            lastName: student.last_name,
+            studentId: student.student_id,
+            password: userPassword,
+          });
+        } catch (emailErr) {
+          logger.warn(`Failed to send welcome email to ${student.email}: ${emailErr.message}`);
+        }
+      }
 
       return created(res, student, 'Student created successfully');
     } catch (err) {

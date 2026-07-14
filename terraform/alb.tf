@@ -10,6 +10,12 @@ resource "aws_lb" "main" {
   enable_http2               = true
   idle_timeout               = 60
 
+  access_logs {
+    bucket  = aws_s3_bucket.uploads.bucket
+    prefix  = "alb-logs"
+    enabled = false
+  }
+
   tags = {
     Name = "${var.project_name}-alb"
   }
@@ -39,8 +45,28 @@ resource "aws_lb_target_group" "main" {
   }
 }
 
-# HTTP Listener
-resource "aws_lb_listener" "http" {
+# HTTP Listener - Forward to application (when no SSL cert)
+resource "aws_lb_listener" "http_forward" {
+  count = var.ssl_certificate_arn != "" ? 0 : 1
+
+  load_balancer_arn = aws_lb.main.arn
+  port              = 80
+  protocol          = "HTTP"
+
+  default_action {
+    type = "forward"
+    forward {
+      target_group {
+        arn = aws_lb_target_group.main.arn
+      }
+    }
+  }
+}
+
+# HTTP Listener - Redirect to HTTPS (when SSL cert is provided)
+resource "aws_lb_listener" "http_redirect" {
+  count = var.ssl_certificate_arn != "" ? 1 : 0
+
   load_balancer_arn = aws_lb.main.arn
   port              = 80
   protocol          = "HTTP"
@@ -65,7 +91,11 @@ resource "aws_lb_listener" "https" {
   certificate_arn   = var.ssl_certificate_arn
 
   default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.main.arn
+    type = "forward"
+    forward {
+      target_group {
+        arn = aws_lb_target_group.main.arn
+      }
+    }
   }
 }

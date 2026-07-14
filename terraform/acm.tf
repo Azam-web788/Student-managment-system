@@ -23,9 +23,9 @@ resource "aws_route53_record" "cert_validation" {
   count = var.domain_name != "" && var.ssl_certificate_arn == "" ? 1 : 0
 
   zone_id = data.aws_route53_zone.main[0].zone_id
-  name    = aws_acm_certificate.main[0].domain_validation_options[0].resource_record_name
-  type    = aws_acm_certificate.main[0].domain_validation_options[0].resource_record_type
-  records = [aws_acm_certificate.main[0].domain_validation_options[0].resource_record_value]
+  name    = tolist(aws_acm_certificate.main[0].domain_validation_options)[0].resource_record_name
+  type    = tolist(aws_acm_certificate.main[0].domain_validation_options)[0].resource_record_type
+  records = [tolist(aws_acm_certificate.main[0].domain_validation_options)[0].resource_record_value]
   ttl     = 60
 }
 

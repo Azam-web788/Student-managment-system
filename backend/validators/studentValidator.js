@@ -40,6 +40,10 @@ export const createStudentValidation = [
     .optional()
     .isIn(['active', 'inactive', 'graduated', 'suspended'])
     .withMessage('Invalid status value'),
+  body('password')
+    .optional({ values: 'falsy' })
+    .isLength({ min: 6, max: 100 })
+    .withMessage('Password must be between 6 and 100 characters'),
   body('emergencyContactName')
     .optional({ values: 'falsy' })
     .trim()

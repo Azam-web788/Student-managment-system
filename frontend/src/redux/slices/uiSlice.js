@@ -1,5 +1,36 @@
 import { createSlice } from '@reduxjs/toolkit';
 
+// Store callback references outside Redux to maintain serializability
+const confirmCallbacks = new Map();
+let callbackIdCounter = 0;
+
+export function registerConfirmCallback(fn) {
+  const id = ++callbackIdCounter;
+  confirmCallbacks.set(id, fn);
+  return id;
+}
+
+export function getConfirmCallback(id) {
+  return confirmCallbacks.get(id);
+}
+
+export function removeConfirmCallback(id) {
+  confirmCallbacks.delete(id);
+}
+
+export async function executeConfirmCallback(id) {
+  const fn = confirmCallbacks.get(id);
+  if (fn) {
+    try {
+      const result = await fn();
+      return result;
+    } finally {
+      // Clean up after execution completes (or fails)
+      confirmCallbacks.delete(id);
+    }
+  }
+}
+
 const initialState = {
   sidebarOpen: true,
   snackbar: {
@@ -11,7 +42,7 @@ const initialState = {
     open: false,
     title: '',
     message: '',
-    onConfirm: null,
+    callbackId: null,
   },
 };
 
@@ -36,15 +67,22 @@ const uiSlice = createSlice({
       state.snackbar.open = false;
     },
     showConfirmDialog(state, action) {
+      const callbackId = action.payload.onConfirm
+        ? registerConfirmCallback(action.payload.onConfirm)
+        : null;
       state.confirmDialog = {
         open: true,
         title: action.payload.title || 'Confirm',
         message: action.payload.message || 'Are you sure?',
-        onConfirm: action.payload.onConfirm || null,
+        callbackId,
       };
     },
     hideConfirmDialog(state) {
+      if (state.confirmDialog.callbackId) {
+        removeConfirmCallback(state.confirmDialog.callbackId);
+      }
       state.confirmDialog.open = false;
+      state.confirmDialog.callbackId = null;
     },
   },
 });

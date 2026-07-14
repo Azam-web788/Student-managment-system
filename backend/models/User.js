@@ -25,12 +25,12 @@ const User = {
     return result.rows[0];
   },
 
-  async create({ username, email, passwordHash, fullName }) {
+  async create({ username, email, passwordHash, fullName, role }) {
     const result = await pool.query(
-      `INSERT INTO users (username, email, password_hash, full_name)
-       VALUES ($1, $2, $3, $4)
+      `INSERT INTO users (username, email, password_hash, full_name, role)
+       VALUES ($1, $2, $3, $4, $5)
        RETURNING id, username, email, full_name, role, created_at`,
-      [username, email, passwordHash, fullName]
+      [username, email, passwordHash, fullName, role || 'admin']
     );
     return result.rows[0];
   },
@@ -47,6 +47,14 @@ const User = {
       'UPDATE users SET password_hash = $1 WHERE id = $2',
       [passwordHash, id]
     );
+  },
+
+  async updateProfile(id, { fullName }) {
+    const result = await pool.query(
+      'UPDATE users SET full_name = COALESCE($1, full_name) WHERE id = $2 RETURNING id, username, email, full_name, role',
+      [fullName, id]
+    );
+    return result.rows[0];
   },
 
   async listAll() {

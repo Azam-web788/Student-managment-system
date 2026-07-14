@@ -103,7 +103,7 @@ export default function DashboardPage() {
 
       {/* Stats Cards */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
-        <Grid xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <StatCard
             title="Total Students"
             value={stats?.totalStudents}
@@ -112,7 +112,7 @@ export default function DashboardPage() {
             loading={loading}
           />
         </Grid>
-        <Grid xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <StatCard
             title="Active Students"
             value={stats?.activeStudents}
@@ -121,7 +121,7 @@ export default function DashboardPage() {
             loading={loading}
           />
         </Grid>
-        <Grid xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <StatCard
             title="Departments"
             value={stats?.totalDepartments}
@@ -130,7 +130,7 @@ export default function DashboardPage() {
             loading={loading}
           />
         </Grid>
-        <Grid xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <StatCard
             title="Courses"
             value={stats?.totalCourses}
@@ -143,7 +143,7 @@ export default function DashboardPage() {
 
       <Grid container spacing={3}>
         {/* Department Distribution */}
-        <Grid xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Card>
             <CardContent sx={{ p: 3 }}>
               <Typography variant="h6" fontWeight={600} gutterBottom>
@@ -192,7 +192,7 @@ export default function DashboardPage() {
         </Grid>
 
         {/* Student Status */}
-        <Grid xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Card>
             <CardContent sx={{ p: 3 }}>
               <Typography variant="h6" fontWeight={600} gutterBottom>
@@ -240,7 +240,7 @@ export default function DashboardPage() {
         </Grid>
 
         {/* Recent Students */}
-        <Grid xs={12}>
+        <Grid size={{ xs: 12 }}>
           <Card>
             <CardContent sx={{ p: 3 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>

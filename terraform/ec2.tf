@@ -44,7 +44,9 @@ resource "aws_iam_role_policy" "ec2" {
         ]
         Resource = [
           aws_s3_bucket.uploads.arn,
-          "${aws_s3_bucket.uploads.arn}/*"
+          "${aws_s3_bucket.uploads.arn}/*",
+          data.aws_s3_bucket.deployment.arn,
+          "${data.aws_s3_bucket.deployment.arn}/*"
         ]
       },
       {
@@ -69,16 +71,28 @@ resource "aws_iam_role_policy" "ec2" {
   })
 }
 
+# SSH Key Pair - create a new one if no public key exists
+resource "tls_private_key" "main" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
+resource "aws_key_pair" "main" {
+  key_name   = "${var.project_name}-key"
+  public_key = tls_private_key.main.public_key_openssh
+}
+
 # Launch Template
 resource "aws_launch_template" "main" {
   name_prefix   = "${var.project_name}-lt-"
   image_id      = var.ami_id != "" ? var.ami_id : data.aws_ami.amazon_linux.id
   instance_type = var.instance_type
-  key_name      = aws_key_pair.main.key_name
 
   iam_instance_profile {
     name = aws_iam_instance_profile.ec2.name
   }
+
+  key_name = aws_key_pair.main.key_name
 
   vpc_security_group_ids = [aws_security_group.ec2.id]
 
@@ -92,6 +106,7 @@ resource "aws_launch_template" "main" {
     jwt_expires_in   = var.jwt_expires_in
     aws_region       = var.aws_region
     s3_bucket        = aws_s3_bucket.uploads.id
+    deploy_bucket    = data.aws_s3_bucket.deployment.id
     node_env         = var.environment
     alb_dns          = aws_lb.main.dns_name
   }))
@@ -99,10 +114,8 @@ resource "aws_launch_template" "main" {
   block_device_mappings {
     device_name = "/dev/xvda"
     ebs {
-      volume_size           = 20
+      volume_size           = 30
       volume_type           = "gp3"
-      encrypted             = true
-      kms_key_id            = aws_kms_key.main.arn
       delete_on_termination = true
     }
   }
@@ -216,17 +229,11 @@ data "aws_ami" "amazon_linux" {
 
   filter {
     name   = "name"
-    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
+    values = ["al2023-ami-*-x86_64"]
   }
 
   filter {
     name   = "virtualization-type"
     values = ["hvm"]
   }
-}
-
-# Key pair
-resource "aws_key_pair" "main" {
-  key_name   = "${var.project_name}-key"
-  public_key = fileexists("~/.ssh/id_rsa.pub") ? file("~/.ssh/id_rsa.pub") : ""
 }

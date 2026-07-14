@@ -207,11 +207,13 @@ describe('Student Routes - /api/students', () => {
       const newStudent = mockStudent({ id: 'new-student-id', student_id: 'STU260002', first_name: 'Jane', last_name: 'Smith', email: 'jane.smith@test.com' });
 
       mockQuery
-        .mockResolvedValueOnce({ rows: [] })                         // findByEmail
+        .mockResolvedValueOnce({ rows: [] })                         // Student.findByEmail
         .mockResolvedValueOnce({ rows: [mockDepartment()] })         // Department.findById
         .mockResolvedValueOnce({ rows: [mockCourse()] })             // Course.findById
         .mockResolvedValueOnce({ rows: [{ count: '1' }] })           // generateStudentId
-        .mockResolvedValueOnce({ rows: [newStudent] });              // INSERT
+        .mockResolvedValueOnce({ rows: [newStudent] })               // Student.create (INSERT)
+        .mockResolvedValueOnce({ rows: [] })                         // User.findByEmail (no existing user)
+        .mockResolvedValueOnce({ rows: [{ id: 'new-user-id', email: 'jane.smith@test.com' }] }); // User.create
 
       const res = await authPost('/api/students')
         .send(validPayload)

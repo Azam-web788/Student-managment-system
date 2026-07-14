@@ -81,6 +81,75 @@ const AuthService = {
     }
     return user;
   },
+
+  async forgotPassword(email) {
+    const user = await User.findByEmail(email);
+    if (!user) {
+      // Don't reveal whether email exists
+      return { message: 'If that email is registered, a reset link has been sent.' };
+    }
+
+    // Generate a short-lived reset token (1 hour)
+    const resetToken = jwt.sign(
+      { id: user.id, email: user.email, purpose: 'password-reset' },
+      env.jwt.secret,
+      { expiresIn: '1h' }
+    );
+
+    // Send email with reset link
+    try {
+      const { default: EmailService } = await import('./emailService.js');
+      await EmailService.sendPasswordReset({
+        email: user.email,
+        fullName: user.full_name || user.username,
+        resetToken,
+        origin: env.corsOrigin || 'http://localhost:5173',
+      });
+    } catch (emailErr) {
+      logger.error(`Failed to send password reset email: ${emailErr.message}`);
+    }
+
+    return { message: 'If that email is registered, a reset link has been sent.' };
+  },
+
+  async resetPassword(token, newPassword) {
+    const decoded = jwt.verify(token, env.jwt.secret);
+    
+    if (decoded.purpose !== 'password-reset') {
+      throw Object.assign(new Error('Invalid reset token'), { statusCode: 400 });
+    }
+
+    const user = await User.findById(decoded.id);
+    if (!user) {
+      throw Object.assign(new Error('User not found'), { statusCode: 404 });
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, 12);
+    await User.updatePassword(decoded.id, passwordHash);
+
+    logger.info(`Password reset successful for user: ${user.email}`);
+    return { message: 'Password has been reset successfully.' };
+  },
+
+  async updateProfile(userId, { fullName }) {
+    const user = await User.findById(userId);
+    if (!user) {
+      throw Object.assign(new Error('User not found'), { statusCode: 404 });
+    }
+
+    // Update user in database
+    await User.updateProfile(userId, { fullName });
+
+    const updated = await User.findById(userId);
+    
+    return {
+      id: updated.id,
+      username: updated.username,
+      email: updated.email,
+      fullName: updated.full_name,
+      role: updated.role,
+    };
+  },
 };
 
 export default AuthService;
