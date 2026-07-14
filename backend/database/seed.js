@@ -9,24 +9,20 @@ async function seed() {
     logger.info('Starting database seed...');
 
     // ── 1. Admin User ─────────────────────────────────────
-    let adminUserId;
     const existingUser = await client.query(
       "SELECT id FROM users WHERE email = 'admin@studentmanagement.com'"
     );
 
     if (existingUser.rows.length > 0) {
-      adminUserId = existingUser.rows[0].id;
       logger.info('Admin user already exists, skipping...');
     } else {
       const password = 'Admin@123';
       const passwordHash = await bcrypt.hash(password, 12);
-      const result = await client.query(
+      await client.query(
         `INSERT INTO users (username, email, password_hash, full_name, role)
-         VALUES ($1, $2, $3, $4, $5)
-         RETURNING id`,
+         VALUES ($1, $2, $3, $4, $5)`,
         ['admin', 'admin@studentmanagement.com', passwordHash, 'System Admin', 'superadmin']
       );
-      adminUserId = result.rows[0].id;
       logger.info('✅ Admin user created');
     }
 

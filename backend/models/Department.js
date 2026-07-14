@@ -54,6 +54,22 @@ const Department = {
     return result.rows[0];
   },
 
+  async findByName(name) {
+    const result = await pool.query(
+      'SELECT * FROM departments WHERE name = $1',
+      [name]
+    );
+    return result.rows[0];
+  },
+
+  async findByCodeOrName(code, name) {
+    const result = await pool.query(
+      'SELECT * FROM departments WHERE code = $1 OR name = $2',
+      [code, name]
+    );
+    return result.rows;
+  },
+
   async create({ name, code, description }) {
     const result = await pool.query(
       `INSERT INTO departments (name, code, description)

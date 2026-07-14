@@ -48,8 +48,41 @@ router.post('/', async (req, res) => {
     const { name, code, description } = req.body;
     if (!name || !code) return badRequest(res, 'Name and code are required');
 
-    const existing = await Department.findByCode(code);
-    if (existing) return badRequest(res, 'Department code already exists');
+    const existingList = await Department.findByCodeOrName(code, name);
+
+    // Check for active duplicates first
+    const activeCodeMatch = existingList.find((d) => d.code === code && d.is_active);
+    if (activeCodeMatch) {
+      return badRequest(res, 'Department code already exists');
+    }
+
+    const activeNameMatch = existingList.find((d) => d.name === name && d.is_active);
+    if (activeNameMatch) {
+      return badRequest(res, 'Department name already exists');
+    }
+
+    // Reactivate soft-deleted matches if any exist
+    const inactiveCodeMatch = existingList.find((d) => d.code === code && !d.is_active);
+    if (inactiveCodeMatch) {
+      const department = await Department.update(inactiveCodeMatch.id, {
+        name,
+        code,
+        description,
+        isActive: true,
+      });
+      return created(res, department, 'Department reactivated successfully');
+    }
+
+    const inactiveNameMatch = existingList.find((d) => d.name === name && !d.is_active);
+    if (inactiveNameMatch) {
+      const department = await Department.update(inactiveNameMatch.id, {
+        name,
+        code,
+        description,
+        isActive: true,
+      });
+      return created(res, department, 'Department reactivated successfully');
+    }
 
     const department = await Department.create({ name, code, description });
     return created(res, department, 'Department created successfully');

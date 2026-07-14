@@ -20,6 +20,23 @@ jest.unstable_mockModule('pg', () => ({
   })),
 }));
 
+jest.unstable_mockModule('nodemailer', () => ({
+  default: {
+    createTransport: jest.fn(() => ({
+      sendMail: jest.fn().mockResolvedValue({ messageId: 'mocked-message-id' }),
+      verify: jest.fn().mockResolvedValue(true),
+    })),
+    createTestAccount: jest.fn().mockResolvedValue({ user: 'test@example.com', pass: 'password' }),
+    getTestMessageUrl: jest.fn(() => 'https://ethereal.email/message/mocked-id'),
+  },
+  createTransport: jest.fn(() => ({
+    sendMail: jest.fn().mockResolvedValue({ messageId: 'mocked-message-id' }),
+    verify: jest.fn().mockResolvedValue(true),
+  })),
+  createTestAccount: jest.fn().mockResolvedValue({ user: 'test@example.com', pass: 'password' }),
+  getTestMessageUrl: jest.fn(() => 'https://ethereal.email/message/mocked-id'),
+}));
+
 // Set test environment before importing the app
 process.env.NODE_ENV = 'test';
 process.env.JWT_SECRET = 'test-jwt-secret';

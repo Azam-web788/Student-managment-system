@@ -78,6 +78,7 @@ export default [
       globals: {
         ...globals.browser,
         ...globals.es2021,
+        process: 'readonly',
         describe: 'readonly',
         it: 'readonly',
         test: 'readonly',

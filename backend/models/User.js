@@ -42,6 +42,13 @@ const User = {
     );
   },
 
+  async updateStatus(email, isActive) {
+    await pool.query(
+      'UPDATE users SET is_active = $1 WHERE email = $2',
+      [isActive, email]
+    );
+  },
+
   async updatePassword(id, passwordHash) {
     await pool.query(
       'UPDATE users SET password_hash = $1 WHERE id = $2',

@@ -19,12 +19,12 @@ export function isRetryableError(error) {
   if (error.isNetworkError) return true;
   // Proxy errors (Vite can't reach backend)
   if (error.isProxyError) return true;
+  // 429 Too Many Requests — retry with backoff
+  if (error.status === 429) return true;
   // Never retry 4xx client errors (bad request, not found, conflict, etc.)
   if (error.status >= 400 && error.status < 500) return false;
   // Transient server errors
   if (error.status === 502 || error.status === 503) return true;
-  // 429 Too Many Requests — retry with backoff
-  if (error.status === 429) return true;
   return false;
 }
 
@@ -144,8 +144,8 @@ class ApiService {
           RETRY_CONFIG.maxDelayMs
         );
 
-        if (process.env.NODE_ENV !== 'production') {
-          console.info(
+        if (import.meta.env.DEV) {
+          console.warn(
             `[API] Retrying ${endpoint} (retry ${attempt - 1}/${retries - 1}) after ${delay}ms...`
           );
         }

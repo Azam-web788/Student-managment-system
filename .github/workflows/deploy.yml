@@ -29,7 +29,7 @@ env:
   AWS_REGION: 'us-east-1'
   TERRAFORM_VERSION: '1.5.0'
   DOMAIN_NAME: ''
-  DEPLOY_BUCKET: ''
+  DEPLOY_BUCKET: 'student-management-deploy-989864147584'
 
 jobs:
   lint-and-test:
@@ -68,6 +68,16 @@ jobs:
           cd frontend
           npm run lint || echo "Linting warnings found"
         continue-on-error: true
+
+      - name: Run Backend Tests
+        run: |
+          cd backend
+          npm test
+
+      - name: Run Frontend Tests
+        run: |
+          cd frontend
+          npm test
 
       - name: Build Frontend
         run: |

@@ -1,0 +1,33 @@
+# Dependency directories
+node_modules/
+
+# Build outputs
+dist/
+build/
+
+# Logs
+logs/
+*.log
+
+# Test coverage
+coverage/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Terraform files
+.terraform/
+*.tfstate
+*.tfstate.*
+tfplan
+*.tfvars
+*.auto.tfvars
+
+# Deployment packages & Keys
+backend-deploy.tar.gz
+frontend-deploy.tar.gz
+*.pem
+*.pemgit
+uploads/
+backend/uploads/

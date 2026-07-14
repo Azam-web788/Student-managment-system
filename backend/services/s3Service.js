@@ -24,8 +24,8 @@ const S3Service = {
     const ext = path.extname(file.originalname);
     const filename = `${uuidv4()}${ext}`;
 
-    // For production, upload to S3
-    if (env.nodeEnv === 'production' && env.aws.accessKeyId) {
+    // For production, upload to S3 if a bucket is configured
+    if (env.nodeEnv === 'production' && env.aws.s3Bucket) {
       return await this.uploadToS3(file, filename);
     }
 
@@ -40,13 +40,14 @@ const S3Service = {
     try {
       const { S3Client, PutObjectCommand } = await import('@aws-sdk/client-s3');
 
-      const s3Client = new S3Client({
-        region: env.aws.region,
-        credentials: {
+      const s3Config = { region: env.aws.region };
+      if (env.aws.accessKeyId && env.aws.secretAccessKey) {
+        s3Config.credentials = {
           accessKeyId: env.aws.accessKeyId,
           secretAccessKey: env.aws.secretAccessKey,
-        },
-      });
+        };
+      }
+      const s3Client = new S3Client(s3Config);
 
       const fileContent = fs.readFileSync(file.path);
 
@@ -105,13 +106,14 @@ const S3Service = {
         // Delete from S3
         const { S3Client, DeleteObjectCommand } = await import('@aws-sdk/client-s3');
 
-        const s3Client = new S3Client({
-          region: env.aws.region,
-          credentials: {
+        const s3Config = { region: env.aws.region };
+        if (env.aws.accessKeyId && env.aws.secretAccessKey) {
+          s3Config.credentials = {
             accessKeyId: env.aws.accessKeyId,
             secretAccessKey: env.aws.secretAccessKey,
-          },
-        });
+          };
+        }
+        const s3Client = new S3Client(s3Config);
 
         const key = fileUrl.split('.amazonaws.com/')[1];
         await s3Client.send(new DeleteObjectCommand({

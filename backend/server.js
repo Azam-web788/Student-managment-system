@@ -62,12 +62,12 @@ const authLimiter = rateLimit({
 
 app.use('/api/auth/login', authLimiter);
 
-// XSS Sanitization
-app.use(xssSanitize);
-
 // Body parsing
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// XSS Sanitization
+app.use(xssSanitize);
 
 // Static files (for uploaded images in development)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

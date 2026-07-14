@@ -113,10 +113,13 @@ const StudentController = {
 
           // Reactivate user account if it was deactivated
           const existingUser = await User.findByEmail(email);
-          if (existingUser && !existingUser.is_active) {
-            logger.info(`Reactivating user account for: ${email}`);
-            // User model doesn't have a reactivate method, but we can use update
-            // For now, just log it
+          if (existingUser) {
+            await User.updateStatus(email, true);
+            if (password) {
+              const passwordHash = await bcrypt.hash(password, 12);
+              await User.updatePassword(existingUser.id, passwordHash);
+            }
+            logger.info(`User account updated/reactivated for student: ${email}`);
           }
 
           return success(res, reactivated, 'Student reactivated successfully');
@@ -197,6 +200,14 @@ const StudentController = {
         } catch (emailErr) {
           logger.warn(`Failed to send welcome email to ${student.email}: ${emailErr.message}`);
         }
+      } else {
+        // Reactivate/update status and update password if provided
+        await User.updateStatus(email, true);
+        if (password) {
+          const passwordHash = await bcrypt.hash(password, 12);
+          await User.updatePassword(existingUser.id, passwordHash);
+        }
+        logger.info(`User account updated/reactivated for student: ${email}`);
       }
 
       return created(res, student, 'Student created successfully');
@@ -272,6 +283,9 @@ const StudentController = {
       }
 
       await Student.delete(id);
+
+      // Deactivate corresponding user account
+      await User.updateStatus(student.email, false);
 
       // Delete profile image from storage
       if (student.profile_image_url) {

@@ -131,6 +131,7 @@ resource "aws_iam_policy" "github_actions_terraform" {
           "elasticloadbalancing:DescribeTags",
           "elasticloadbalancing:AddTags",
           "elasticloadbalancing:RemoveTags",
+          "elasticloadbalancing:DescribeLoadBalancerAttributes",
           # RDS
           "rds:DescribeDBInstances",
           "rds:CreateDBInstance",
