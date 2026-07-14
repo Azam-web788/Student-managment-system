@@ -235,6 +235,7 @@ resource "aws_iam_policy" "github_actions_terraform" {
           "s3:GetBucketLogging",
           "s3:GetBucketVersioning",
           "s3:GetAccelerateConfiguration",
+          "s3:GetBucketRequestPayment",
           # CloudWatch
           "logs:CreateLogGroup",
           "logs:DeleteLogGroup",
