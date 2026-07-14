@@ -243,6 +243,7 @@ resource "aws_iam_policy" "github_actions_terraform" {
           "s3:GetBucketVersioning",
           "s3:GetAccelerateConfiguration",
           "s3:GetBucketRequestPayment",
+          "s3:GetEncryptionConfiguration",
           "s3:GetReplicationConfiguration",
           "s3:GetBucketNotification",
           "s3:GetBucketObjectLockConfiguration",
