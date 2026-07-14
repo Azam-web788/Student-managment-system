@@ -128,6 +128,9 @@ resource "aws_iam_policy" "github_actions_terraform" {
           "elasticloadbalancing:DescribeTargetGroupAttributes",
           "elasticloadbalancing:DescribeListeners",
           "elasticloadbalancing:DescribeSSLPolicies",
+          "elasticloadbalancing:DescribeTags",
+          "elasticloadbalancing:AddTags",
+          "elasticloadbalancing:RemoveTags",
           # RDS
           "rds:DescribeDBInstances",
           "rds:CreateDBInstance",
@@ -138,6 +141,10 @@ resource "aws_iam_policy" "github_actions_terraform" {
           "rds:DescribeDBSubnetGroups",
           "rds:DescribeDBParameterGroups",
           "rds:ListTagsForResource",
+          "rds:DescribeDBParameters",
+          "rds:DescribeDBEngineVersions",
+          "rds:AddTagsToResource",
+          "rds:RemoveTagsFromResource",
           # VPC
           "ec2:CreateVpc",
           "ec2:DeleteVpc",
@@ -199,6 +206,11 @@ resource "aws_iam_policy" "github_actions_terraform" {
           "kms:CancelKeyDeletion",
           "kms:CreateAlias",
           "kms:DeleteAlias",
+          "kms:GetKeyPolicy",
+          "kms:ListKeys",
+          "kms:GetKeyRotationStatus",
+          "kms:TagResource",
+          "kms:UntagResource",
           # S3 (all buckets including terraform state)
           "s3:GetObject",
           "s3:PutObject",
@@ -216,6 +228,9 @@ resource "aws_iam_policy" "github_actions_terraform" {
           "s3:GetBucketPublicAccessBlock",
           "s3:PutLifecycleConfiguration",
           "s3:GetLifecycleConfiguration",
+          "s3:GetBucketCORS",
+          "s3:GetBucketWebsite",
+          "s3:GetBucketLogging",
           # CloudWatch
           "logs:CreateLogGroup",
           "logs:DeleteLogGroup",
