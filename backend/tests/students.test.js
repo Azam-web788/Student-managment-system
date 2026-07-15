@@ -294,6 +294,51 @@ describe('Student Routes - /api/students', () => {
 
       expect(res.status).toBe(400);
     });
+
+    it('should create a new student with a profile picture successfully', async () => {
+      const newStudent = mockStudent({ 
+        id: 'new-student-id', 
+        student_id: 'STU260002', 
+        first_name: 'Jane', 
+        last_name: 'Smith', 
+        email: 'jane.smith@test.com',
+        profile_image_url: '/uploads/students/test-image.png'
+      });
+
+      mockQuery
+        .mockResolvedValueOnce({ rows: [] })                         // Student.findByEmail
+        .mockResolvedValueOnce({ rows: [mockDepartment()] })         // Department.findById
+        .mockResolvedValueOnce({ rows: [mockCourse()] })             // Course.findById
+        .mockResolvedValueOnce({ rows: [{ count: '1' }] })           // generateStudentId
+        .mockResolvedValueOnce({ rows: [newStudent] })               // Student.create (INSERT)
+        .mockResolvedValueOnce({ rows: [] })                         // User.findByEmail (no existing user)
+        .mockResolvedValueOnce({ rows: [{ id: 'new-user-id', email: 'jane.smith@test.com' }] }); // User.create
+
+      const res = await authPost('/api/students')
+        .field('firstName', 'Jane')
+        .field('lastName', 'Smith')
+        .field('email', 'jane.smith@test.com')
+        .field('phone', '+1-555-0200')
+        .field('dateOfBirth', '2001-03-20')
+        .field('gender', 'Female')
+        .field('address', '456 Oak Ave')
+        .field('city', 'Boston')
+        .field('state', 'MA')
+        .field('zipCode', '02108')
+        .field('country', 'USA')
+        .field('departmentId', '22345678-1234-4234-9234-123456789012')
+        .field('courseId', '32345678-1234-4234-9234-123456789012')
+        .field('status', 'active')
+        .field('password', 'password123')
+        .field('emergencyContactName', 'John Smith')
+        .field('emergencyContactPhone', '+1-555-0201')
+        .attach('profileImage', Buffer.from('fake image content'), 'test-image.png')
+        .expect('Content-Type', /json/);
+
+      expect(res.status).toBe(201);
+      expect(res.body.data.email).toBe('jane.smith@test.com');
+      expect(res.body.data.profile_image_url).toContain('test-image.png');
+    });
   });
 
   describe('PUT /api/students/:id', () => {

@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import env from './config/env.js';
 import { globalErrorHandler } from './middleware/errorHandler.js';
@@ -69,8 +70,14 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // XSS Sanitization
 app.use(xssSanitize);
 
+// Ensure uploads directory exists for multer and static file serving
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
 // Static files (for uploaded images in development)
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(uploadsDir));
 
 // Request logging middleware
 app.use((req, res, next) => {
